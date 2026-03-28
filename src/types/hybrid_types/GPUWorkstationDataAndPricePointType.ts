@@ -2,6 +2,6 @@ import type { GPUWorkstationData } from '@/types/product_types/GPUWorkstationTyp
 import type { GPUWorkstationPricePointType } from '@/types/price_point_types/GPUWorkstationPricePointType.ts';
 
 export interface GPUWorkstationDataAndPricePointType {
-    gpuWorkstationData: GPUWorkstationData;
-    pricePoints: GPUWorkstationPricePointType[];
+    gpuWorkstationDTO: GPUWorkstationData;
+    gpuWorkstationPricePointDTOList: GPUWorkstationPricePointType[];
 }
