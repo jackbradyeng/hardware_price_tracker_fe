@@ -2,7 +2,7 @@ import type { GPUWorkstationData } from '@/types//product_types/GPUWorkstationTy
 
 export const getGPUWorkstations = async (): Promise<GPUWorkstationData[]> => {
 
-    const response = await fetch('/api/gpu_workstations');
+    const response = await fetch('/api/workstation_gpus');
 
     if (!response.ok) {
         throw new Error('Network response failed.');
