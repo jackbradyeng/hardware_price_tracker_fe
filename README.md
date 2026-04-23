@@ -10,10 +10,6 @@ A multi-page interface for tracking the price history of computer hardware compo
 
 This application allows users to browse time-series pricing data on computer hardware across several categories — Consumer GPUs, CPUs, RAM, and Workstation GPUs — and view interactive charts for each product, broken down by vendor. The goal is to give users a clear picture of how prices move over time across the Australian market, with the intention to extend coverage to US vendors in the future. The application has its genesis in the extreme pricing voltality we have seen with RAM and GPU prices in recent times.
 
-### Important Caveat
-
-Please note that I am NOT a front-end developer and my knowledge of the React framework is quite limited. The vast majority of my time has been spent on the backend architecture (Spring Boot & PostgreSQL) as that is my specialization. I had considerable help developing this front-end from personal friends as well as Claude Code. Please note again that I am NOT a skilled front-end developer. **This repository does not even have a testing suite...**
-
 ---
 
 ## Key Features
