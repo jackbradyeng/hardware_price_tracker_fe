@@ -253,6 +253,7 @@ export const ProductListPage: React.FC<Props> = ({ type }) => {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [viewMode, setViewMode] = useState<ViewMode>('grid');
+    const [chipFilter, setChipFilter] = useState<string | null>(null);
 
     const config = TYPE_CONFIG[type];
 
@@ -260,6 +261,7 @@ export const ProductListPage: React.FC<Props> = ({ type }) => {
         const load = async () => {
             setIsLoading(true);
             setError(null);
+            setChipFilter(null);
             try {
                 let data: AnyProduct[];
                 if (type === 'gpu') data = await getGPUs();
@@ -275,6 +277,14 @@ export const ProductListPage: React.FC<Props> = ({ type }) => {
         };
         load();
     }, [type]);
+
+    const chipOptions = type === 'gpu'
+        ? [...new Set(products.map(p => (p as GPUData).chip).filter(Boolean))] as string[]
+        : [];
+
+    const filteredProducts = (type === 'gpu' && chipFilter)
+        ? products.filter(p => (p as GPUData).chip === chipFilter)
+        : products;
 
     const handleClick = (product: AnyProduct) => {
         const model = getModelNumber(product);
@@ -308,7 +318,7 @@ export const ProductListPage: React.FC<Props> = ({ type }) => {
                         {config.label}
                     </h1>
                     <p className="font-mono text-xs mt-0.5" style={{ color: 'var(--text)', opacity: 0.7 }}>
-                        {products.length} products tracked
+                        {filteredProducts.length} products tracked
                     </p>
                 </div>
 
@@ -319,7 +329,7 @@ export const ProductListPage: React.FC<Props> = ({ type }) => {
                     {(['grid', 'list'] as ViewMode[]).map((mode) => (
                         <button
                             key={mode}
-                            onClick={() => setViewMode(mode)}
+                            onClick={() => { setViewMode(mode); }}
                             className="px-3 py-1.5 text-xs font-mono transition-colors"
                             style={{
                                 background: viewMode === mode ? 'var(--accent-bg)' : 'var(--bg)',
@@ -333,12 +343,38 @@ export const ProductListPage: React.FC<Props> = ({ type }) => {
                 </div>
             </div>
 
+            {type === 'gpu' && chipOptions.length > 0 && (
+                <div className="flex items-center gap-2 mb-4">
+                    <label className="text-xs font-mono" style={{ color: 'var(--text)', opacity: 0.7 }}>
+                        chip filter
+                    </label>
+                    <select
+                        value={chipFilter ?? ''}
+                        onChange={(e) => setChipFilter(e.target.value || null)}
+                        className="text-xs font-mono px-2 py-1 rounded border"
+                        style={{
+                            background: 'var(--bg)',
+                            color: 'var(--text)',
+                            borderColor: chipFilter ? 'var(--accent-border)' : 'var(--border)',
+                        }}
+                    >
+                        <option value="">all</option>
+                        {chipOptions.map(chip => (
+                            <option key={chip} value={chip}>{chip}</option>
+                        ))}
+                    </select>
+                </div>
+            )}
+
             {viewMode === 'grid' ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                    {products.map((product, i) => {
-                        if (type === 'gpu') return <GPUGridCard key={i} gpu={product as GPUData} onClick={() => handleClick(product)} />;
-                        if (type === 'cpu') return <CPUGridCard key={i} cpu={product as CPUData} onClick={() => handleClick(product)} />;
-                        if (type === 'ram') return <RAMGridCard key={i} ram={product as RAMData} onClick={() => handleClick(product)} />;
+                    {filteredProducts.map((product, i) => {
+                        if (type === 'gpu')
+                            return <GPUGridCard key={i} gpu={product as GPUData} onClick={() => handleClick(product)} />;
+                        if (type === 'cpu')
+                            return <CPUGridCard key={i} cpu={product as CPUData} onClick={() => handleClick(product)} />;
+                        if (type === 'ram')
+                            return <RAMGridCard key={i} ram={product as RAMData} onClick={() => handleClick(product)} />;
                         return <GPUWSGridCard key={i} gpu={product as GPUWorkstationData} onClick={() => handleClick(product)} />;
                     })}
                 </div>
@@ -347,7 +383,7 @@ export const ProductListPage: React.FC<Props> = ({ type }) => {
                     className="rounded-lg border overflow-hidden"
                     style={{ borderColor: 'var(--border)' }}
                 >
-                    {products.map((product, i) => {
+                    {filteredProducts.map((product, i) => {
                         let primary = '';
                         let secondary = '';
 
@@ -358,15 +394,18 @@ export const ProductListPage: React.FC<Props> = ({ type }) => {
                         } else if (type === 'cpu') {
                             const c = product as CPUData;
                             primary = c.name ?? '';
-                            secondary = [c.chipManufacturer, c.series, c.cores ? `${c.cores}C/${c.threads}T` : null].filter(Boolean).join(' · ');
+                            secondary = [c.chipManufacturer, c.series, c.cores ? `${c.cores}C/${c.threads}T` : null]
+                                .filter(Boolean).join(' · ');
                         } else if (type === 'ram') {
                             const r = product as RAMData;
                             primary = r.name ?? '';
-                            secondary = [r.brand, r.standard, r.volume ? `${r.volume}GB` : null, r.clockRate ? `${r.clockRate}MHz` : null].filter(Boolean).join(' · ');
+                            secondary = [r.brand, r.standard, r.volume ? `${r.volume}GB` : null, r.clockRate ? `${r.clockRate}MHz` : null]
+                                .filter(Boolean).join(' · ');
                         } else {
                             const g = product as GPUWorkstationData;
                             primary = g.name ?? '';
-                            secondary = [g.chipManufacturer, g.gpuMemory ? `${g.gpuMemory}GB` : null, g.cudaCores ? `${g.cudaCores} CUDA` : null].filter(Boolean).join(' · ');
+                            secondary = [g.chipManufacturer, g.gpuMemory ? `${g.gpuMemory}GB` : null, g.cudaCores ? `${g.cudaCores} CUDA` : null]
+                                .filter(Boolean).join(' · ');
                         }
 
                         return (
@@ -375,7 +414,7 @@ export const ProductListPage: React.FC<Props> = ({ type }) => {
                                 product={product}
                                 primary={primary}
                                 secondary={secondary}
-                                onClick={() => handleClick(product)}
+                                onClick={() => { handleClick(product); }}
                             />
                         );
                     })}
