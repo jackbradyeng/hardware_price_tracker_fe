@@ -14,8 +14,9 @@ This application allows users to browse time-series pricing data on computer har
 
 ## Key Features
 
-- **Category browsing** — Landing page with four hardware categories, each linking to a product list
+- **Category browsing** — Landing page with four hardware categories, each linking to a list of products
 - **Dual view modes** — Products can be browsed in grid or list layout
+- **Chip Filters for GPUs** - Filter by GPU model in the layout
 - **Product detail pages** — Per-product specification tables with full price history
 - **Multi-vendor price charts** — Interactive line charts showing price over time, one line per vendor, powered by Recharts
 - **Smart price deduplication** — Where multiple price points exist for the same vendor on the same day, only the latest is plotted
@@ -84,6 +85,22 @@ The frontend proxies all API calls through Vite's dev server to the Spring Boot 
 | `GET` | `/api/workstation_gpu_pricepoints/{modelNumber}` | Workstation GPU specs + price history |
 
 Price data is collected by a **JSoup web scraper** running on a **daily CRON schedule** in the backend, sourcing prices from Australian online retailers including Umart Online.
+
+---
+
+## Screenshots
+
+### Landing Page
+
+![Landing Page](photos/LandingPage.png)
+
+### Product List Page
+
+![ConsumerGPUsProductPage](photos/ConsumerGPUsProductPage.png)
+
+### Product Detail Page
+
+![ProductPageDetail](photos/ProductPageDetail.png)
 
 ---
 
