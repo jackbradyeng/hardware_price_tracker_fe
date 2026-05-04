@@ -22,13 +22,13 @@ interface Props {
 }
 
 const VENDOR_COLORS = [
-    'var(--accent)',
-    '#3b82f6',
-    '#10b981',
-    '#f59e0b',
-    '#ef4444',
-    '#8b5cf6',
-    '#ec4899',
+    '#00e676',
+    '#ff1744',
+    '#00bcd4',
+    '#ffab00',
+    '#76ff03',
+    '#ff6d00',
+    '#e040fb',
 ];
 
 export const PriceChart: React.FC<Props> = ({ pricePoints }) => {
