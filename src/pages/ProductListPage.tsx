@@ -1,9 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { LineChart, Line, ResponsiveContainer } from 'recharts';
 import { getGPUs } from '@/services/product_services/GPUService';
 import { getCPUs } from '@/services/product_services/CPUService';
 import { getRAMs } from '@/services/product_services/RAMService';
 import { getGPUWorkstations } from '@/services/product_services/GPUWorkstationService';
+import { getGPUPricePoints } from '@/services/price_point_services/GPUPricePointService';
+import { getCPUPricePoints } from '@/services/price_point_services/CPUPricePointService';
+import { getRAMPricePoints } from '@/services/price_point_services/RAMPricePointService';
+import { getGPUWorkstationPricePoints } from '@/services/price_point_services/GPUWorkstationPricePointService';
 import type { GPUData } from '@/types/product_types/GPUType';
 import type { CPUData } from '@/types/product_types/CPUType';
 import type { RAMData } from '@/types/product_types/RAMType';
@@ -15,12 +20,21 @@ type AnyProduct = GPUData | CPUData | RAMData | GPUWorkstationData;
 
 type ViewMode = 'grid' | 'list';
 
+interface MiniPricePoint {
+    modelNumber: string | null;
+    vendor: string | null;
+    price: number | null;
+    scrapedAt: string | null;
+}
+
 const TYPE_CONFIG: Record<ProductType, { label: string; detailBase: string }> = {
     gpu: { label: 'Consumer GPUs', detailBase: '/gpu_pricepoints' },
     cpu: { label: 'CPUs', detailBase: '/cpu_pricepoints' },
     ram: { label: 'RAM', detailBase: '/ram_pricepoints' },
     workstation_gpu: { label: 'Workstation GPUs', detailBase: '/workstation_gpu_pricepoints' },
 };
+
+const SPARKLINE_COLORS = ['#00e676', '#ff1744', '#00bcd4', '#ffab00', '#76ff03', '#ff6d00', '#e040fb'];
 
 function getModelNumber(product: AnyProduct): string | null {
     return product.modelNumber;
@@ -30,9 +44,75 @@ function getIsActive(product: AnyProduct): boolean {
     return product.isActive;
 }
 
+// ---- Mini sparkline ----
+
+function MiniPriceChart({ pricePoints }: { pricePoints: MiniPricePoint[] }) {
+    const { chartData, vendors } = useMemo(() => {
+        const filtered = pricePoints.filter(
+            (p): p is MiniPricePoint & { vendor: string; scrapedAt: string; price: number } =>
+                p.scrapedAt !== null && p.vendor !== null && p.price !== null
+        );
+        const vendorSet = new Set<string>();
+        for (const p of filtered) vendorSet.add(p.vendor);
+        const vendors = [...vendorSet].sort();
+
+        const byDate = new Map<string, { _ts: number; [key: string]: number }>();
+        for (const p of filtered) {
+            const ts = new Date(p.scrapedAt).getTime();
+            const dateKey = new Date(p.scrapedAt).toLocaleDateString('en-AU', {
+                day: '2-digit', month: 'short', year: '2-digit',
+            });
+            let entry = byDate.get(dateKey);
+            if (!entry) {
+                entry = { _ts: ts } as { _ts: number; [k: string]: number };
+                byDate.set(dateKey, entry);
+            }
+            const vendorTsKey = `_ts_${p.vendor}`;
+            if (!entry[vendorTsKey] || ts >= entry[vendorTsKey]) {
+                entry[p.vendor] = p.price;
+                entry[vendorTsKey] = ts;
+            }
+            if (ts < entry._ts) entry._ts = ts;
+        }
+
+        const chartData = [...byDate.entries()]
+            .sort(([, a], [, b]) => a._ts - b._ts)
+            .map(([date, values]) => {
+                const rest = Object.fromEntries(Object.entries(values)
+                    .filter(([k]) => !k.startsWith('_')));
+                return { date, ...rest };
+            });
+
+        return { chartData, vendors };
+    }, [pricePoints]);
+
+    if (chartData.length < 2) return null;
+
+    return (
+        <div className="mt-3 -mx-1" style={{ opacity: 0.7 }}>
+            <ResponsiveContainer width="100%" height={48}>
+                <LineChart data={chartData} margin={{ top: 2, right: 2, left: 2, bottom: 2 }}>
+                    {vendors.map((vendor, i) => (
+                        <Line
+                            key={vendor}
+                            type="monotone"
+                            dataKey={vendor}
+                            stroke={SPARKLINE_COLORS[i % SPARKLINE_COLORS.length]}
+                            strokeWidth={1.5}
+                            dot={false}
+                            connectNulls={false}
+                            isAnimationActive={false}
+                        />
+                    ))}
+                </LineChart>
+            </ResponsiveContainer>
+        </div>
+    );
+}
+
 // ---- Card renderers ----
 
-function GPUGridCard({ gpu, onClick }: { gpu: GPUData; onClick: () => void }) {
+function GPUGridCard({ gpu, onClick, pricePoints }: { gpu: GPUData; onClick: () => void; pricePoints: MiniPricePoint[] }) {
     return (
         <button
             onClick={onClick}
@@ -67,11 +147,12 @@ function GPUGridCard({ gpu, onClick }: { gpu: GPUData; onClick: () => void }) {
             <p className="text-xs" style={{ color: 'var(--text)' }}>
                 {gpu.chip} &middot; {gpu.chipManufacturer}
             </p>
+            <MiniPriceChart pricePoints={pricePoints} />
         </button>
     );
 }
 
-function CPUGridCard({ cpu, onClick }: { cpu: CPUData; onClick: () => void }) {
+function CPUGridCard({ cpu, onClick, pricePoints }: { cpu: CPUData; onClick: () => void; pricePoints: MiniPricePoint[] }) {
     return (
         <button
             onClick={onClick}
@@ -105,13 +186,14 @@ function CPUGridCard({ cpu, onClick }: { cpu: CPUData; onClick: () => void }) {
             </p>
             <p className="text-xs" style={{ color: 'var(--text)' }}>
                 {cpu.chipManufacturer} {cpu.series && `· ${cpu.series}`}
-                {cpu.cores && ` · ${cpu.cores}C/${cpu.threads}T`}
+                {cpu.cores && ` · ${String(cpu.cores)}C/${String(cpu.threads)}T`}
             </p>
+            <MiniPriceChart pricePoints={pricePoints} />
         </button>
     );
 }
 
-function RAMGridCard({ ram, onClick }: { ram: RAMData; onClick: () => void }) {
+function RAMGridCard({ ram, onClick, pricePoints }: { ram: RAMData; onClick: () => void; pricePoints: MiniPricePoint[] }) {
     return (
         <button
             onClick={onClick}
@@ -145,14 +227,16 @@ function RAMGridCard({ ram, onClick }: { ram: RAMData; onClick: () => void }) {
             </p>
             <p className="text-xs" style={{ color: 'var(--text)' }}>
                 {ram.brand} · {ram.standard}
-                {ram.volume && ` · ${ram.volume}GB`}
-                {ram.clockRate && ` · ${ram.clockRate}MHz`}
+                {ram.volume && ` · ${String(ram.volume)}GB`}
+                {ram.clockRate && ` · ${String(ram.clockRate)}MHz`}
             </p>
+            <MiniPriceChart pricePoints={pricePoints} />
         </button>
     );
 }
 
-function GPUWSGridCard({ gpu, onClick }: { gpu: GPUWorkstationData; onClick: () => void }) {
+function GPUWSGridCard({ gpu, onClick, pricePoints }:
+                       { gpu: GPUWorkstationData; onClick: () => void; pricePoints: MiniPricePoint[] }) {
     return (
         <button
             onClick={onClick}
@@ -186,9 +270,10 @@ function GPUWSGridCard({ gpu, onClick }: { gpu: GPUWorkstationData; onClick: () 
             </p>
             <p className="text-xs" style={{ color: 'var(--text)' }}>
                 {gpu.chipManufacturer}
-                {gpu.gpuMemory && ` · ${gpu.gpuMemory}GB`}
-                {gpu.cudaCores && ` · ${gpu.cudaCores} CUDA`}
+                {gpu.gpuMemory && ` · ${String(gpu.gpuMemory)}GB`}
+                {gpu.cudaCores && ` · ${String(gpu.cudaCores)} CUDA`}
             </p>
+            <MiniPriceChart pricePoints={pricePoints} />
         </button>
     );
 }
@@ -250,6 +335,7 @@ interface Props {
 export const ProductListPage: React.FC<Props> = ({ type }) => {
     const navigate = useNavigate();
     const [products, setProducts] = useState<AnyProduct[]>([]);
+    const [pricePointMap, setPricePointMap] = useState<Map<string, MiniPricePoint[]>>(new Map());
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [viewMode, setViewMode] = useState<ViewMode>('grid');
@@ -264,18 +350,33 @@ export const ProductListPage: React.FC<Props> = ({ type }) => {
             setChipFilter(null);
             try {
                 let data: AnyProduct[];
-                if (type === 'gpu') data = await getGPUs();
-                else if (type === 'cpu') data = await getCPUs();
-                else if (type === 'ram') data = await getRAMs();
-                else data = await getGPUWorkstations();
-                setProducts((data ?? []).sort((a, b) => Number(b.isActive) - Number(a.isActive)));
+                let pricePoints: MiniPricePoint[];
+                if (type === 'gpu') {
+                    [data, pricePoints] = await Promise.all([getGPUs(), getGPUPricePoints()]);
+                } else if (type === 'cpu') {
+                    [data, pricePoints] = await Promise.all([getCPUs(), getCPUPricePoints()]);
+                } else if (type === 'ram') {
+                    [data, pricePoints] = await Promise.all([getRAMs(), getRAMPricePoints()]);
+                } else {
+                    [data, pricePoints] = await Promise.all([getGPUWorkstations(), getGPUWorkstationPricePoints()]);
+                }
+
+                setProducts(data.sort((a, b) => Number(b.isActive) - Number(a.isActive)));
+
+                const map = new Map<string, MiniPricePoint[]>();
+                for (const pp of pricePoints) {
+                    if (!pp.modelNumber) continue;
+                    if (!map.has(pp.modelNumber)) map.set(pp.modelNumber, []);
+                    map.get(pp.modelNumber)?.push(pp);
+                }
+                setPricePointMap(map);
             } catch {
                 setError('Failed to connect to the backend. Check that the API is running on port 8080.');
             } finally {
                 setIsLoading(false);
             }
         };
-        load();
+        void load();
     }, [type]);
 
     const chipOptions = type === 'gpu'
@@ -288,7 +389,7 @@ export const ProductListPage: React.FC<Props> = ({ type }) => {
 
     const handleClick = (product: AnyProduct) => {
         const model = getModelNumber(product);
-        if (model) navigate(`${config.detailBase}/${encodeURIComponent(model)}`);
+        if (model) void navigate(`${config.detailBase}/${encodeURIComponent(model)}`);
     };
 
     if (isLoading) {
@@ -350,7 +451,7 @@ export const ProductListPage: React.FC<Props> = ({ type }) => {
                     </label>
                     <select
                         value={chipFilter ?? ''}
-                        onChange={(e) => setChipFilter(e.target.value || null)}
+                        onChange={(e) => { setChipFilter(e.target.value || null); }}
                         className="text-xs font-mono px-2 py-1 rounded border"
                         style={{
                             background: 'var(--bg)',
@@ -369,13 +470,14 @@ export const ProductListPage: React.FC<Props> = ({ type }) => {
             {viewMode === 'grid' ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                     {filteredProducts.map((product, i) => {
+                        const pts = pricePointMap.get(getModelNumber(product) ?? '') ?? [];
                         if (type === 'gpu')
-                            return <GPUGridCard key={i} gpu={product as GPUData} onClick={() => handleClick(product)} />;
+                            return <GPUGridCard key={i} gpu={product as GPUData} onClick={() => { handleClick(product); }} pricePoints={pts} />;
                         if (type === 'cpu')
-                            return <CPUGridCard key={i} cpu={product as CPUData} onClick={() => handleClick(product)} />;
+                            return <CPUGridCard key={i} cpu={product as CPUData} onClick={() => { handleClick(product); }} pricePoints={pts} />;
                         if (type === 'ram')
-                            return <RAMGridCard key={i} ram={product as RAMData} onClick={() => handleClick(product)} />;
-                        return <GPUWSGridCard key={i} gpu={product as GPUWorkstationData} onClick={() => handleClick(product)} />;
+                            return <RAMGridCard key={i} ram={product as RAMData} onClick={() => { handleClick(product); }} pricePoints={pts} />;
+                        return <GPUWSGridCard key={i} gpu={product as GPUWorkstationData} onClick={() => { handleClick(product); }} pricePoints={pts} />;
                     })}
                 </div>
             ) : (
@@ -394,17 +496,17 @@ export const ProductListPage: React.FC<Props> = ({ type }) => {
                         } else if (type === 'cpu') {
                             const c = product as CPUData;
                             primary = c.name ?? '';
-                            secondary = [c.chipManufacturer, c.series, c.cores ? `${c.cores}C/${c.threads}T` : null]
+                            secondary = [c.chipManufacturer, c.series, c.cores ? `${String(c.cores)}C/${String(c.threads)}T` : null]
                                 .filter(Boolean).join(' · ');
                         } else if (type === 'ram') {
                             const r = product as RAMData;
                             primary = r.name ?? '';
-                            secondary = [r.brand, r.standard, r.volume ? `${r.volume}GB` : null, r.clockRate ? `${r.clockRate}MHz` : null]
+                            secondary = [r.brand, r.standard, r.volume ? `${String(r.volume)}GB` : null, r.clockRate ? `${String(r.clockRate)}MHz` : null]
                                 .filter(Boolean).join(' · ');
                         } else {
                             const g = product as GPUWorkstationData;
                             primary = g.name ?? '';
-                            secondary = [g.chipManufacturer, g.gpuMemory ? `${g.gpuMemory}GB` : null, g.cudaCores ? `${g.cudaCores} CUDA` : null]
+                            secondary = [g.chipManufacturer, g.gpuMemory ? `${String(g.gpuMemory)}GB` : null, g.cudaCores ? `${String(g.cudaCores)} CUDA` : null]
                                 .filter(Boolean).join(' · ');
                         }
 
