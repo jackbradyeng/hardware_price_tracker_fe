@@ -4,4 +4,8 @@ import type { CPUPricePointType } from '@/types/price_point_types/CPUPricePointT
 export interface CPUDataAndPricePointType {
     cpuDTO: CPUData;
     cpuPricePointDTOList: CPUPricePointType[];
+    page: number;
+    pageSize: number;
+    totalPages: number;
+    totalElements: bigint;
 }
