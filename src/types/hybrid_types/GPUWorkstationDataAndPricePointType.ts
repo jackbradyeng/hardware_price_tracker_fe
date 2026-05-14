@@ -4,4 +4,8 @@ import type { GPUWorkstationPricePointType } from '@/types/price_point_types/GPU
 export interface GPUWorkstationDataAndPricePointType {
     gpuWorkstationDTO: GPUWorkstationData;
     gpuWorkstationPricePointDTOList: GPUWorkstationPricePointType[];
+    page: number;
+    pageSize: number;
+    totalPages: number;
+    totalElements: bigint;
 }

@@ -4,4 +4,8 @@ import type { GPUPricePointType } from '@/types/price_point_types/GPUPricePointT
 export interface GPUDataAndPricePointType {
     gpuDTO: GPUData;
     gpuPricePointDTOList: GPUPricePointType[];
+    page: number;
+    pageSize: number;
+    totalPages: number;
+    totalElements: bigint;
 }
