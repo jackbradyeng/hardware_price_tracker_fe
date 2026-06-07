@@ -19,6 +19,12 @@ function App() {
                     <Route path="/cpu_pricepoints/:modelNumber" element={<ProductDetailPage type="cpu" />} />
                     <Route path="/ram_pricepoints/:modelNumber" element={<ProductDetailPage type="ram" />} />
                     <Route path="/workstation_gpu_pricepoints/:modelNumber" element={<ProductDetailPage type="workstation_gpu" />} />
+                    <Route path="/ssds" element={<ProductListPage type="ssd" />} />
+                    <Route path="/hdds" element={<ProductListPage type="hdd" />} />
+                    <Route path="/nvmes" element={<ProductListPage type="nvme" />} />
+                    <Route path="/ssd_pricepoints/:modelNumber" element={<ProductDetailPage type="ssd" />} />
+                    <Route path="/hdd_pricepoints/:modelNumber" element={<ProductDetailPage type="hdd" />} />
+                    <Route path="/nvme_pricepoints/:modelNumber" element={<ProductDetailPage type="nvme" />} />
                 </Routes>
             </main>
         </BrowserRouter>
