@@ -5,18 +5,27 @@ import { getGPUs } from '@/services/product_services/GPUService';
 import { getCPUs } from '@/services/product_services/CPUService';
 import { getRAMs } from '@/services/product_services/RAMService';
 import { getGPUWorkstations } from '@/services/product_services/GPUWorkstationService';
+import { getSSDs } from '@/services/product_services/SSDService';
+import { getHDDs } from '@/services/product_services/HDDService';
+import { getNVMEs } from '@/services/product_services/NVMEService';
 import { getGPUPricePoints } from '@/services/price_point_services/GPUPricePointService';
 import { getCPUPricePoints } from '@/services/price_point_services/CPUPricePointService';
 import { getRAMPricePoints } from '@/services/price_point_services/RAMPricePointService';
 import { getGPUWorkstationPricePoints } from '@/services/price_point_services/GPUWorkstationPricePointService';
+import { getSSDPricePoints } from '@/services/price_point_services/SSDPricePointService';
+import { getHDDPricePoints } from '@/services/price_point_services/HDDPricePointService';
+import { getNVMEPricePoints } from '@/services/price_point_services/NVMEPricePointService';
 import type { GPUData } from '@/types/product_types/GPUType';
 import type { CPUData } from '@/types/product_types/CPUType';
 import type { RAMData } from '@/types/product_types/RAMType';
 import type { GPUWorkstationData } from '@/types/product_types/GPUWorkstationType';
+import type { SSDData } from '@/types/product_types/SSDType';
+import type { HDDData } from '@/types/product_types/HDDType';
+import type { NVMEData } from '@/types/product_types/NVMEType';
 
-export type ProductType = 'gpu' | 'cpu' | 'ram' | 'workstation_gpu';
+export type ProductType = 'gpu' | 'cpu' | 'ram' | 'workstation_gpu' | 'ssd' | 'hdd' | 'nvme';
 
-type AnyProduct = GPUData | CPUData | RAMData | GPUWorkstationData;
+type AnyProduct = GPUData | CPUData | RAMData | GPUWorkstationData | SSDData | HDDData | NVMEData;
 
 type ViewMode = 'grid' | 'list';
 
@@ -32,6 +41,9 @@ const TYPE_CONFIG: Record<ProductType, { label: string; detailBase: string }> = 
     cpu: { label: 'CPUs', detailBase: '/cpu_pricepoints' },
     ram: { label: 'RAM', detailBase: '/ram_pricepoints' },
     workstation_gpu: { label: 'Workstation GPUs', detailBase: '/workstation_gpu_pricepoints' },
+    ssd: { label: 'SSDs', detailBase: '/ssd_pricepoints' },
+    hdd: { label: 'HDDs', detailBase: '/hdd_pricepoints' },
+    nvme: { label: 'NVMe Drives', detailBase: '/nvme_pricepoints' },
 };
 
 const SPARKLINE_COLORS = ['#00e676', '#ff1744', '#00bcd4', '#ffab00', '#76ff03', '#ff6d00', '#e040fb'];
@@ -278,6 +290,134 @@ function GPUWSGridCard({ gpu, onClick, pricePoints }:
     );
 }
 
+function SSDGridCard({ ssd, onClick, pricePoints }: { ssd: SSDData; onClick: () => void; pricePoints: MiniPricePoint[] }) {
+    return (
+        <button
+            onClick={onClick}
+            className="text-left p-4 rounded-lg border transition-all cursor-pointer w-full"
+            style={{ background: 'var(--bg)', borderColor: 'var(--border)', opacity: ssd.isActive ? 1 : 0.55 }}
+            onMouseEnter={(e) => {
+                (e.currentTarget as HTMLElement).style.borderColor = 'var(--accent-border)';
+                (e.currentTarget as HTMLElement).style.background = 'var(--accent-bg)';
+            }}
+            onMouseLeave={(e) => {
+                (e.currentTarget as HTMLElement).style.borderColor = 'var(--border)';
+                (e.currentTarget as HTMLElement).style.background = 'var(--bg)';
+            }}
+        >
+            <div className="flex justify-between items-start mb-2">
+                <span
+                    className="text-xs font-mono px-1.5 py-0.5 rounded"
+                    style={{
+                        background: ssd.isActive ? 'rgba(16,185,129,0.12)' : 'var(--code-bg)',
+                        color: ssd.isActive ? '#10b981' : 'var(--text)',
+                    }}
+                >
+                    {ssd.isActive ? 'active' : 'inactive'}
+                </span>
+                <span className="text-xs font-mono" style={{ color: 'var(--text)', opacity: 0.6 }}>
+                    {ssd.modelNumber}
+                </span>
+            </div>
+            <p className="font-semibold mb-0.5 leading-tight" style={{ color: 'var(--text-h)', fontSize: '0.9rem' }}>
+                {ssd.name}
+            </p>
+            <p className="text-xs" style={{ color: 'var(--text)' }}>
+                {ssd.brand}
+                {ssd.capacity && ` · ${String(ssd.capacity)}GB`}
+                {ssd.storageInterface && ` · ${ssd.storageInterface}`}
+            </p>
+            <MiniPriceChart pricePoints={pricePoints} />
+        </button>
+    );
+}
+
+function HDDGridCard({ hdd, onClick, pricePoints }: { hdd: HDDData; onClick: () => void; pricePoints: MiniPricePoint[] }) {
+    return (
+        <button
+            onClick={onClick}
+            className="text-left p-4 rounded-lg border transition-all cursor-pointer w-full"
+            style={{ background: 'var(--bg)', borderColor: 'var(--border)', opacity: hdd.isActive ? 1 : 0.55 }}
+            onMouseEnter={(e) => {
+                (e.currentTarget as HTMLElement).style.borderColor = 'var(--accent-border)';
+                (e.currentTarget as HTMLElement).style.background = 'var(--accent-bg)';
+            }}
+            onMouseLeave={(e) => {
+                (e.currentTarget as HTMLElement).style.borderColor = 'var(--border)';
+                (e.currentTarget as HTMLElement).style.background = 'var(--bg)';
+            }}
+        >
+            <div className="flex justify-between items-start mb-2">
+                <span
+                    className="text-xs font-mono px-1.5 py-0.5 rounded"
+                    style={{
+                        background: hdd.isActive ? 'rgba(16,185,129,0.12)' : 'var(--code-bg)',
+                        color: hdd.isActive ? '#10b981' : 'var(--text)',
+                    }}
+                >
+                    {hdd.isActive ? 'active' : 'inactive'}
+                </span>
+                <span className="text-xs font-mono" style={{ color: 'var(--text)', opacity: 0.6 }}>
+                    {hdd.modelNumber}
+                </span>
+            </div>
+            <p className="font-semibold mb-0.5 leading-tight" style={{ color: 'var(--text-h)', fontSize: '0.9rem' }}>
+                {hdd.name}
+            </p>
+            <p className="text-xs" style={{ color: 'var(--text)' }}>
+                {hdd.brand}
+                {hdd.capacity && ` · ${String(hdd.capacity)}GB`}
+                {hdd.rpm && ` · ${String(hdd.rpm)}RPM`}
+                {hdd.formFactor && ` · ${String(hdd.formFactor)}"`}
+            </p>
+            <MiniPriceChart pricePoints={pricePoints} />
+        </button>
+    );
+}
+
+function NVMEGridCard({ nvme, onClick, pricePoints }: { nvme: NVMEData; onClick: () => void; pricePoints: MiniPricePoint[] }) {
+    return (
+        <button
+            onClick={onClick}
+            className="text-left p-4 rounded-lg border transition-all cursor-pointer w-full"
+            style={{ background: 'var(--bg)', borderColor: 'var(--border)', opacity: nvme.isActive ? 1 : 0.55 }}
+            onMouseEnter={(e) => {
+                (e.currentTarget as HTMLElement).style.borderColor = 'var(--accent-border)';
+                (e.currentTarget as HTMLElement).style.background = 'var(--accent-bg)';
+            }}
+            onMouseLeave={(e) => {
+                (e.currentTarget as HTMLElement).style.borderColor = 'var(--border)';
+                (e.currentTarget as HTMLElement).style.background = 'var(--bg)';
+            }}
+        >
+            <div className="flex justify-between items-start mb-2">
+                <span
+                    className="text-xs font-mono px-1.5 py-0.5 rounded"
+                    style={{
+                        background: nvme.isActive ? 'rgba(16,185,129,0.12)' : 'var(--code-bg)',
+                        color: nvme.isActive ? '#10b981' : 'var(--text)',
+                    }}
+                >
+                    {nvme.isActive ? 'active' : 'inactive'}
+                </span>
+                <span className="text-xs font-mono" style={{ color: 'var(--text)', opacity: 0.6 }}>
+                    {nvme.modelNumber}
+                </span>
+            </div>
+            <p className="font-semibold mb-0.5 leading-tight" style={{ color: 'var(--text-h)', fontSize: '0.9rem' }}>
+                {nvme.name}
+            </p>
+            <p className="text-xs" style={{ color: 'var(--text)' }}>
+                {nvme.brand}
+                {nvme.capacity && ` · ${String(nvme.capacity)}GB`}
+                {nvme.storageInterface && ` · ${nvme.storageInterface}`}
+                {nvme.includesHeatSink && ' · heatsink'}
+            </p>
+            <MiniPriceChart pricePoints={pricePoints} />
+        </button>
+    );
+}
+
 // ---- List row renderers ----
 
 function ListRow({
@@ -357,6 +497,12 @@ export const ProductListPage: React.FC<Props> = ({ type }) => {
                     [data, pricePoints] = await Promise.all([getCPUs(), getCPUPricePoints()]);
                 } else if (type === 'ram') {
                     [data, pricePoints] = await Promise.all([getRAMs(), getRAMPricePoints()]);
+                } else if (type === 'ssd') {
+                    [data, pricePoints] = await Promise.all([getSSDs(), getSSDPricePoints()]);
+                } else if (type === 'hdd') {
+                    [data, pricePoints] = await Promise.all([getHDDs(), getHDDPricePoints()]);
+                } else if (type === 'nvme') {
+                    [data, pricePoints] = await Promise.all([getNVMEs(), getNVMEPricePoints()]);
                 } else {
                     [data, pricePoints] = await Promise.all([getGPUWorkstations(), getGPUWorkstationPricePoints()]);
                 }
@@ -477,6 +623,12 @@ export const ProductListPage: React.FC<Props> = ({ type }) => {
                             return <CPUGridCard key={i} cpu={product as CPUData} onClick={() => { handleClick(product); }} pricePoints={pts} />;
                         if (type === 'ram')
                             return <RAMGridCard key={i} ram={product as RAMData} onClick={() => { handleClick(product); }} pricePoints={pts} />;
+                        if (type === 'ssd')
+                            return <SSDGridCard key={i} ssd={product as SSDData} onClick={() => { handleClick(product); }} pricePoints={pts} />;
+                        if (type === 'hdd')
+                            return <HDDGridCard key={i} hdd={product as HDDData} onClick={() => { handleClick(product); }} pricePoints={pts} />;
+                        if (type === 'nvme')
+                            return <NVMEGridCard key={i} nvme={product as NVMEData} onClick={() => { handleClick(product); }} pricePoints={pts} />;
                         return <GPUWSGridCard key={i} gpu={product as GPUWorkstationData} onClick={() => { handleClick(product); }} pricePoints={pts} />;
                     })}
                 </div>
@@ -502,6 +654,21 @@ export const ProductListPage: React.FC<Props> = ({ type }) => {
                             const r = product as RAMData;
                             primary = r.name ?? '';
                             secondary = [r.brand, r.standard, r.volume ? `${String(r.volume)}GB` : null, r.clockRate ? `${String(r.clockRate)}MHz` : null]
+                                .filter(Boolean).join(' · ');
+                        } else if (type === 'ssd') {
+                            const s = product as SSDData;
+                            primary = s.name ?? '';
+                            secondary = [s.brand, s.capacity ? `${String(s.capacity)}GB` : null, s.storageInterface]
+                                .filter(Boolean).join(' · ');
+                        } else if (type === 'hdd') {
+                            const h = product as HDDData;
+                            primary = h.name ?? '';
+                            secondary = [h.brand, h.capacity ? `${String(h.capacity)}GB` : null, h.rpm ? `${String(h.rpm)}RPM` : null, h.formFactor ? `${String(h.formFactor)}"` : null]
+                                .filter(Boolean).join(' · ');
+                        } else if (type === 'nvme') {
+                            const n = product as NVMEData;
+                            primary = n.name ?? '';
+                            secondary = [n.brand, n.capacity ? `${String(n.capacity)}GB` : null, n.storageInterface]
                                 .filter(Boolean).join(' · ');
                         } else {
                             const g = product as GPUWorkstationData;

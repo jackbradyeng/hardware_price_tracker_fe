@@ -4,14 +4,21 @@ import { getGPUPricePointsByModel } from '@/services/price_point_services/GPUPri
 import { getCPUPricePointsByModel } from '@/services/price_point_services/CPUPricePointService';
 import { getRAMPricePointsByModel } from '@/services/price_point_services/RAMPricePointService';
 import { getGPUWorkstationPricePointsByModel } from '@/services/price_point_services/GPUWorkstationPricePointService';
+import { getSSDPricePointsByModel } from '@/services/price_point_services/SSDPricePointService';
+import { getHDDPricePointsByModel } from '@/services/price_point_services/HDDPricePointService';
+import { getNVMEPricePointsByModel } from '@/services/price_point_services/NVMEPricePointService';
 import type { GPUDataAndPricePointType } from '@/types/hybrid_types/GPUDataAndPricePointType';
 import type { CPUDataAndPricePointType } from '@/types/hybrid_types/CPUDataAndPricePointType';
 import type { RAMDataAndPricePointType } from '@/types/hybrid_types/RAMDataAndPricePointType';
 import type { GPUWorkstationDataAndPricePointType } from '@/types/hybrid_types/GPUWorkstationDataAndPricePointType';
+import type { SSDDataAndPricePointType } from '@/types/hybrid_types/SSDDataAndPricePointType';
+import type { HDDDataAndPricePointType } from '@/types/hybrid_types/HDDDataAndPricePointType';
+import type { NVMEDataAndPricePointType } from '@/types/hybrid_types/NVMEDataAndPricePointType';
 import type { GPUPricePointType } from '@/types/price_point_types/GPUPricePointType';
 import type { CPUPricePointType } from '@/types/price_point_types/CPUPricePointType';
 import type { RAMPricePointType } from '@/types/price_point_types/RAMPricePointType';
 import type { GPUWorkstationPricePointType } from '@/types/price_point_types/GPUWorkstationPricePointType';
+import type { AbstractPricePointType } from '@/types/price_point_types/AbstractPricePointType';
 import { PriceChart } from '@/components/PriceChart';
 import type { ProductType } from '@/pages/ProductListPage';
 
@@ -19,13 +26,17 @@ type AnyHybrid =
     | GPUDataAndPricePointType
     | CPUDataAndPricePointType
     | RAMDataAndPricePointType
-    | GPUWorkstationDataAndPricePointType;
+    | GPUWorkstationDataAndPricePointType
+    | SSDDataAndPricePointType
+    | HDDDataAndPricePointType
+    | NVMEDataAndPricePointType;
 
 type AnyPricePoint =
     | GPUPricePointType
     | CPUPricePointType
     | RAMPricePointType
-    | GPUWorkstationPricePointType;
+    | GPUWorkstationPricePointType
+    | AbstractPricePointType;
 
 interface InfoRow {
     label: string;
@@ -82,6 +93,52 @@ function buildInfoRows(type: ProductType, data: AnyHybrid): InfoRow[] {
             { label: 'Status', value: r.isActive ? 'Active' : 'Inactive' },
         ];
     }
+    if (type === 'ssd') {
+        const { ssdDTO: s } = data as SSDDataAndPricePointType;
+        return [
+            { label: 'Model Number', value: s.modelNumber },
+            { label: 'Name', value: s.name },
+            { label: 'Brand', value: s.brand },
+            { label: 'Capacity', value: s.capacity ? `${s.capacity}GB` : null },
+            { label: 'Interface', value: s.storageInterface },
+            { label: 'Seq. Read', value: s.sequentialRead ? `${s.sequentialRead} MB/s` : null },
+            { label: 'Seq. Write', value: s.sequentialWrite ? `${s.sequentialWrite} MB/s` : null },
+            { label: 'MTBF', value: s.meanTimeBetweenFailures ? `${s.meanTimeBetweenFailures}h` : null },
+            { label: 'Status', value: s.isActive ? 'Active' : 'Inactive' },
+        ];
+    }
+    if (type === 'hdd') {
+        const { hddDTO: h } = data as HDDDataAndPricePointType;
+        return [
+            { label: 'Model Number', value: h.modelNumber },
+            { label: 'Name', value: h.name },
+            { label: 'Brand', value: h.brand },
+            { label: 'Capacity', value: h.capacity ? `${h.capacity}GB` : null },
+            { label: 'Interface', value: h.storageInterface },
+            { label: 'RPM', value: h.rpm },
+            { label: 'Cache', value: h.cache ? `${h.cache}MB` : null },
+            { label: 'Form Factor', value: h.formFactor ? `${h.formFactor}"` : null },
+            { label: 'Seq. Read', value: h.sequentialRead ? `${h.sequentialRead} MB/s` : null },
+            { label: 'Seq. Write', value: h.sequentialWrite ? `${h.sequentialWrite} MB/s` : null },
+            { label: 'MTBF', value: h.meanTimeBetweenFailures ? `${h.meanTimeBetweenFailures}h` : null },
+            { label: 'Status', value: h.isActive ? 'Active' : 'Inactive' },
+        ];
+    }
+    if (type === 'nvme') {
+        const { nvmeDTO: n } = data as NVMEDataAndPricePointType;
+        return [
+            { label: 'Model Number', value: n.modelNumber },
+            { label: 'Name', value: n.name },
+            { label: 'Brand', value: n.brand },
+            { label: 'Capacity', value: n.capacity ? `${n.capacity}GB` : null },
+            { label: 'Interface', value: n.storageInterface },
+            { label: 'Seq. Read', value: n.sequentialRead ? `${n.sequentialRead} MB/s` : null },
+            { label: 'Seq. Write', value: n.sequentialWrite ? `${n.sequentialWrite} MB/s` : null },
+            { label: 'MTBF', value: n.meanTimeBetweenFailures ? `${n.meanTimeBetweenFailures}h` : null },
+            { label: 'Includes Heatsink', value: n.includesHeatSink },
+            { label: 'Status', value: n.isActive ? 'Active' : 'Inactive' },
+        ];
+    }
     // gpu_workstation
     const { gpuWorkstationDTO: g } = data as GPUWorkstationDataAndPricePointType;
     return [
@@ -107,6 +164,9 @@ function getProductName(type: ProductType, data: AnyHybrid): string {
     }
     if (type === 'cpu') return (data as CPUDataAndPricePointType).cpuDTO.name ?? '';
     if (type === 'ram') return (data as RAMDataAndPricePointType).ramDTO.name ?? '';
+    if (type === 'ssd') return (data as SSDDataAndPricePointType).ssdDTO.name ?? '';
+    if (type === 'hdd') return (data as HDDDataAndPricePointType).hddDTO.name ?? '';
+    if (type === 'nvme') return (data as NVMEDataAndPricePointType).nvmeDTO.name ?? '';
     return (data as GPUWorkstationDataAndPricePointType).gpuWorkstationDTO.name ?? '';
 }
 
@@ -114,6 +174,9 @@ function getPricePoints(type: ProductType, data: AnyHybrid): AnyPricePoint[] {
     if (type === 'gpu') return (data as GPUDataAndPricePointType).gpuPricePointDTOList;
     if (type === 'cpu') return (data as CPUDataAndPricePointType).cpuPricePointDTOList;
     if (type === 'ram') return (data as RAMDataAndPricePointType).ramPricePointDTOList;
+    if (type === 'ssd') return (data as SSDDataAndPricePointType).ssdPricePointDTOList;
+    if (type === 'hdd') return (data as HDDDataAndPricePointType).hddPricePointDTOList;
+    if (type === 'nvme') return (data as NVMEDataAndPricePointType).nvmePricePointDTOList;
     return (data as GPUWorkstationDataAndPricePointType).gpuWorkstationPricePointDTOList;
 }
 
@@ -139,6 +202,9 @@ export const ProductDetailPage: React.FC<Props> = ({ type }) => {
                 if (type === 'gpu') result = await getGPUPricePointsByModel(modelNumber);
                 else if (type === 'cpu') result = await getCPUPricePointsByModel(modelNumber);
                 else if (type === 'ram') result = await getRAMPricePointsByModel(modelNumber);
+                else if (type === 'ssd') result = await getSSDPricePointsByModel(modelNumber);
+                else if (type === 'hdd') result = await getHDDPricePointsByModel(modelNumber);
+                else if (type === 'nvme') result = await getNVMEPricePointsByModel(modelNumber);
                 else result = await getGPUWorkstationPricePointsByModel(modelNumber);
                 setData(result);
             } catch {
@@ -147,7 +213,7 @@ export const ProductDetailPage: React.FC<Props> = ({ type }) => {
                 setIsLoading(false);
             }
         };
-        load();
+        void load();
     }, [type, modelNumber]);
 
     if (isLoading) {

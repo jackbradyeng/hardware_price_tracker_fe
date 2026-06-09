@@ -1,0 +1,26 @@
+import type { AbstractPricePointType } from '@/types/price_point_types/AbstractPricePointType.ts';
+import type { SSDDataAndPricePointType } from '@/types/hybrid_types/SSDDataAndPricePointType.ts';
+import type { PageResponse } from '@/types/PageResponse.ts';
+
+export const getSSDPricePoints = async (): Promise<AbstractPricePointType[]> => {
+
+    const response = await fetch('/api/ssd_pricepoints?size=10000');
+
+    if (!response.ok) {
+        throw new Error('Network response failed.');
+    }
+
+    return ((await response.json()) as PageResponse<AbstractPricePointType>).content;
+}
+
+export const getSSDPricePointsByModel
+    = async (modelNumber: string): Promise<SSDDataAndPricePointType> => {
+
+    const response = await fetch(`/api/ssd_pricepoints/${modelNumber}?size=10000`);
+
+    if (!response.ok) {
+        throw new Error('Network response failed.');
+    }
+
+    return (await response.json()) as SSDDataAndPricePointType;
+}

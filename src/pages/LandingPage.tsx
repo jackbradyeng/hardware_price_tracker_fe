@@ -26,6 +26,24 @@ const CATEGORIES = [
         path: '/workstation_gpus',
         meta: 'NVIDIA · AMD',
     },
+    {
+        label: 'SSDs',
+        description: 'Track SATA and NVMe solid state drive pricing across major brands.',
+        path: '/ssds',
+        meta: 'SATA · NVMe',
+    },
+    {
+        label: 'HDDs',
+        description: 'Monitor hard disk drive prices across capacities and form factors.',
+        path: '/hdds',
+        meta: 'HDD · SATA',
+    },
+    {
+        label: 'NVMe Drives',
+        description: 'Compare PCIe NVMe drive pricing across capacities and interfaces.',
+        path: '/nvmes',
+        meta: 'PCIe · M.2',
+    },
 ];
 
 export const LandingPage: React.FC = () => {
@@ -46,7 +64,7 @@ export const LandingPage: React.FC = () => {
                 {CATEGORIES.map((cat) => (
                     <button
                         key={cat.path}
-                        onClick={() => navigate(cat.path)}
+                        onClick={() => { void navigate(cat.path); }}
                         className="text-left p-5 rounded-lg border transition-all cursor-pointer"
                         style={{
                             background: 'var(--bg)',
