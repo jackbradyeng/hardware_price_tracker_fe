@@ -1,8 +1,8 @@
-import type { GPUPricePointType } from '@/types/price_point_types/GPUPricePointType.ts';
+import type { AbstractPricePointType } from '@/types/price_point_types/AbstractPricePointType.ts';
 import type { GPUDataAndPricePointType } from '@/types/hybrid_types/GPUDataAndPricePointType.ts';
 import type { PageResponse } from '@/types/PageResponse.ts';
 
-export const getGPUPricePoints = async (): Promise<GPUPricePointType[]> => {
+export const getGPUPricePoints = async (): Promise<AbstractPricePointType[]> => {
 
     const response = await fetch('/api/gpu_pricepoints?size=10000');
 
@@ -10,7 +10,7 @@ export const getGPUPricePoints = async (): Promise<GPUPricePointType[]> => {
         throw new Error('Network response failed.');
     }
 
-    return ((await response.json()) as PageResponse<GPUPricePointType>).content;
+    return ((await response.json()) as PageResponse<AbstractPricePointType>).content;
 }
 
 export const getGPUPricePointsByModel

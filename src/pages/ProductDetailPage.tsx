@@ -14,7 +14,6 @@ import type { GPUWorkstationDataAndPricePointType } from '@/types/hybrid_types/G
 import type { SSDDataAndPricePointType } from '@/types/hybrid_types/SSDDataAndPricePointType';
 import type { HDDDataAndPricePointType } from '@/types/hybrid_types/HDDDataAndPricePointType';
 import type { NVMEDataAndPricePointType } from '@/types/hybrid_types/NVMEDataAndPricePointType';
-import type { GPUPricePointType } from '@/types/price_point_types/GPUPricePointType';
 import type { RAMPricePointType } from '@/types/price_point_types/RAMPricePointType';
 import type { GPUWorkstationPricePointType } from '@/types/price_point_types/GPUWorkstationPricePointType';
 import type { AbstractPricePointType } from '@/types/price_point_types/AbstractPricePointType';
@@ -31,7 +30,6 @@ type AnyHybrid =
     | NVMEDataAndPricePointType;
 
 type AnyPricePoint =
-    | GPUPricePointType
     | RAMPricePointType
     | GPUWorkstationPricePointType
     | AbstractPricePointType;
