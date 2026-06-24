@@ -14,7 +14,6 @@ import type { GPUWorkstationDataAndPricePointType } from '@/types/hybrid_types/G
 import type { SSDDataAndPricePointType } from '@/types/hybrid_types/SSDDataAndPricePointType';
 import type { HDDDataAndPricePointType } from '@/types/hybrid_types/HDDDataAndPricePointType';
 import type { NVMEDataAndPricePointType } from '@/types/hybrid_types/NVMEDataAndPricePointType';
-import type { GPUWorkstationPricePointType } from '@/types/price_point_types/GPUWorkstationPricePointType';
 import type { AbstractPricePointType } from '@/types/price_point_types/AbstractPricePointType';
 import { PriceChart } from '@/components/PriceChart';
 import type { ProductType } from '@/pages/ProductListPage';
@@ -28,9 +27,7 @@ type AnyHybrid =
     | HDDDataAndPricePointType
     | NVMEDataAndPricePointType;
 
-type AnyPricePoint =
-    | GPUWorkstationPricePointType
-    | AbstractPricePointType;
+type AnyPricePoint = AbstractPricePointType;
 
 interface InfoRow {
     label: string;
