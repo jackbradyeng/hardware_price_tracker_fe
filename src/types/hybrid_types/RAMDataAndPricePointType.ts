@@ -1,9 +1,9 @@
 import type { RAMData } from '@/types/product_types/RAMType.ts';
-import type { RAMPricePointType } from '@/types/price_point_types/RAMPricePointType.ts';
+import type { AbstractPricePointType } from '@/types/price_point_types/AbstractPricePointType.ts';
 
 export interface RAMDataAndPricePointType {
     ramDTO: RAMData;
-    ramPricePointDTOList: RAMPricePointType[];
+    ramPricePointDTOList: AbstractPricePointType[];
     page: number;
     pageSize: number;
     totalPages: number;
