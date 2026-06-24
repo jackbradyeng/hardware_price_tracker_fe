@@ -1,8 +1,8 @@
-import type { RAMPricePointType } from '@/types/price_point_types/RAMPricePointType.ts';
+import type { AbstractPricePointType } from '@/types/price_point_types/AbstractPricePointType.ts';
 import type { RAMDataAndPricePointType } from '@/types/hybrid_types/RAMDataAndPricePointType.ts';
 import type { PageResponse } from '@/types/PageResponse.ts';
 
-export const getRAMPricePoints = async (): Promise<RAMPricePointType[]> => {
+export const getRAMPricePoints = async (): Promise<AbstractPricePointType[]> => {
 
     const response = await fetch('/api/ram_pricepoints?size=10000');
 
@@ -10,7 +10,7 @@ export const getRAMPricePoints = async (): Promise<RAMPricePointType[]> => {
         throw new Error('Network response failed.');
     }
 
-    return ((await response.json()) as PageResponse<RAMPricePointType>).content;
+    return ((await response.json()) as PageResponse<AbstractPricePointType>).content;
 }
 
 export const getRAMPricePointsByModel
