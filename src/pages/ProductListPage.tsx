@@ -480,6 +480,7 @@ export const ProductListPage: React.FC<Props> = ({ type }) => {
     const [error, setError] = useState<string | null>(null);
     const [viewMode, setViewMode] = useState<ViewMode>('grid');
     const [chipFilter, setChipFilter] = useState<string | null>(null);
+    const [brandFilter, setBrandFilter] = useState<string | null>(null);
 
     const config = TYPE_CONFIG[type];
 
@@ -488,6 +489,7 @@ export const ProductListPage: React.FC<Props> = ({ type }) => {
             setIsLoading(true);
             setError(null);
             setChipFilter(null);
+            setBrandFilter(null);
             try {
                 let data: AnyProduct[];
                 let pricePoints: MiniPricePoint[];
@@ -529,8 +531,15 @@ export const ProductListPage: React.FC<Props> = ({ type }) => {
         ? [...new Set(products.map(p => (p as GPUData).chip).filter(Boolean))] as string[]
         : [];
 
-    const filteredProducts = (type === 'gpu' && chipFilter)
-        ? products.filter(p => (p as GPUData).chip === chipFilter)
+    const brandOptions = type === 'gpu'
+        ? [...new Set(products.map(p => (p as GPUData).boardManufacturer).filter(Boolean))] as string[]
+        : [];
+
+    const filteredProducts = type === 'gpu'
+        ? products.filter(p => {
+            const gpu = p as GPUData;
+            return (!chipFilter || gpu.chip === chipFilter) && (!brandFilter || gpu.boardManufacturer === brandFilter);
+        })
         : products;
 
     const handleClick = (product: AnyProduct) => {
@@ -590,26 +599,53 @@ export const ProductListPage: React.FC<Props> = ({ type }) => {
                 </div>
             </div>
 
-            {type === 'gpu' && chipOptions.length > 0 && (
-                <div className="flex items-center gap-2 mb-4">
-                    <label className="text-xs font-mono" style={{ color: 'var(--text)', opacity: 0.7 }}>
-                        chip filter
-                    </label>
-                    <select
-                        value={chipFilter ?? ''}
-                        onChange={(e) => { setChipFilter(e.target.value || null); }}
-                        className="text-xs font-mono px-2 py-1 rounded border"
-                        style={{
-                            background: 'var(--bg)',
-                            color: 'var(--text)',
-                            borderColor: chipFilter ? 'var(--accent-border)' : 'var(--border)',
-                        }}
-                    >
-                        <option value="">all</option>
-                        {chipOptions.map(chip => (
-                            <option key={chip} value={chip}>{chip}</option>
-                        ))}
-                    </select>
+            {type === 'gpu' && (chipOptions.length > 0 || brandOptions.length > 0) && (
+                <div className="flex items-center gap-4 mb-4 flex-wrap">
+                    {chipOptions.length > 0 && (
+                        <div className="flex items-center gap-2">
+                            <label className="text-xs font-mono" style={{ color: 'var(--text)', opacity: 0.7 }}>
+                                chip filter
+                            </label>
+                            <select
+                                value={chipFilter ?? ''}
+                                onChange={(e) => { setChipFilter(e.target.value || null); }}
+                                className="text-xs font-mono px-2 py-1 rounded border"
+                                style={{
+                                    background: 'var(--bg)',
+                                    color: 'var(--text)',
+                                    borderColor: chipFilter ? 'var(--accent-border)' : 'var(--border)',
+                                }}
+                            >
+                                <option value="">all</option>
+                                {chipOptions.map(chip => (
+                                    <option key={chip} value={chip}>{chip}</option>
+                                ))}
+                            </select>
+                        </div>
+                    )}
+
+                    {brandOptions.length > 0 && (
+                        <div className="flex items-center gap-2">
+                            <label className="text-xs font-mono" style={{ color: 'var(--text)', opacity: 0.7 }}>
+                                brand filter
+                            </label>
+                            <select
+                                value={brandFilter ?? ''}
+                                onChange={(e) => { setBrandFilter(e.target.value || null); }}
+                                className="text-xs font-mono px-2 py-1 rounded border"
+                                style={{
+                                    background: 'var(--bg)',
+                                    color: 'var(--text)',
+                                    borderColor: brandFilter ? 'var(--accent-border)' : 'var(--border)',
+                                }}
+                            >
+                                <option value="">all</option>
+                                {brandOptions.map(brand => (
+                                    <option key={brand} value={brand}>{brand}</option>
+                                ))}
+                            </select>
+                        </div>
+                    )}
                 </div>
             )}
 
