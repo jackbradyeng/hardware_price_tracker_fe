@@ -8,22 +8,22 @@ A multi-page interface for tracking the price history of computer hardware compo
 
 ## Overview
 
-This application allows users to browse time-series pricing data on computer hardware across several categories — Consumer GPUs, CPUs, RAM, and Workstation GPUs — and view interactive charts for each product, broken down by vendor. The goal is to give users a clear picture of how prices move over time across the Australian market, with the intention to extend coverage to US vendors in the future. The application has its genesis in the extreme pricing voltality we have seen with RAM and GPU prices in recent times.
+This application allows users to browse time-series pricing data on computer hardware across several categories — Consumer GPUs, CPUs, RAM, Workstation GPUs, SSDs, HDDs, and NVMe drives — and view interactive charts for each product, broken down by vendor. The goal is to give users a clear picture of how prices move over time across the Australian market, with the intention to extend coverage to US vendors in the future. The application was created in response to the extreme pricing volatility within the PC market.
 
 ---
 
 ## Key Features
 
-- **Category browsing** — Landing page with four hardware categories, each linking to a list of products
+- **Category browsing** — Landing page with seven hardware categories, each linking to a list of products
 - **Dual view modes** — Products can be browsed in grid or list layout
-- **Chip Filters for GPUs** - Filter by GPU model in the layout
+- **Chip & brand filters for GPUs** — Filter consumer GPUs by chip model and board manufacturer
 - **Product detail pages** — Per-product specification tables with full price history
 - **Multi-vendor price charts** — Interactive line charts showing price over time, one line per vendor, powered by Recharts
 - **Smart price deduplication** — Where multiple price points exist for the same vendor on the same day, only the latest is plotted
 - **Active/inactive status** — Products are flagged as active or discontinued; active products sort to the top
 - **Breadcrumb navigation** — Context-aware navbar that reflects the current category and product
 - **Responsive layout** — Mobile-friendly using Tailwind CSS utility classes
-- **Dark mode** — Automatic light/dark theming via CSS custom properties and `prefers-color-scheme`
+- **High-contrast dark theme** — Fixed black background with bright green accent via CSS custom properties
 
 ---
 
@@ -53,7 +53,7 @@ src/
 │   ├── ProductListPage.tsx   # Browsable product grid / list
 │   └── ProductDetailPage.tsx # Product specs + price history
 ├── services/                 # API integration layer
-│   ├── product_services/     # Fetch product catalogues (GPU, CPU, RAM, Workstation GPU)
+│   ├── product_services/     # Fetch product catalogues (GPU, CPU, RAM, Workstation GPU, SSD, HDD, NVMe)
 │   └── price_point_services/ # Fetch price history per product
 ├── types/                    # TypeScript interfaces
 │   ├── product_types/        # Product data models
@@ -79,10 +79,16 @@ The frontend proxies all API calls through Vite's dev server to the Spring Boot 
 | `GET` | `/api/cpus` | All CPU products |
 | `GET` | `/api/ram` | All RAM products |
 | `GET` | `/api/workstation_gpus` | All workstation GPU products |
+| `GET` | `/api/ssds` | All SSD products |
+| `GET` | `/api/hdds` | All HDD products |
+| `GET` | `/api/nvmes` | All NVMe drive products |
 | `GET` | `/api/gpu_pricepoints/{modelNumber}` | GPU specs + full price history |
 | `GET` | `/api/cpu_pricepoints/{modelNumber}` | CPU specs + full price history |
 | `GET` | `/api/ram_pricepoints/{modelNumber}` | RAM specs + full price history |
 | `GET` | `/api/workstation_gpu_pricepoints/{modelNumber}` | Workstation GPU specs + price history |
+| `GET` | `/api/ssd_pricepoints/{modelNumber}` | SSD specs + full price history |
+| `GET` | `/api/hdd_pricepoints/{modelNumber}` | HDD specs + full price history |
+| `GET` | `/api/nvme_pricepoints/{modelNumber}` | NVMe drive specs + full price history |
 
 Price data is collected by a **JSoup web scraper** running on a **daily CRON schedule** in the backend, sourcing prices from Australian online retailers including Umart Online.
 
@@ -126,9 +132,10 @@ npm run lint
 
 ## Roadmap
 
-- [ ] Type-sort and brand-sort for consumer GPUs
-- [ ] HDD and SSD product categories
-- [ ] Workstation CPUs? Network switches?
+- [X] Type-filter for consumer GPUs
+- [X] Brand-filter for consumer GPUs
+- [X] HDD and SSD product categories
+- [ ] Scorptec vendor tracking
+- [ ] PCCG vendor tracking
 - [ ] Pricing alert system to notify users of flash sales
-- [ ] US market vendor support with prices in USD (likely involving Newegg API integration)
 - [ ] Hosted deployment (likely Oracle Cloud or AWS Lightsail)
