@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import type { ValueType } from 'recharts/types/component/DefaultTooltipContent';
 import {
     LineChart,
     Line,
@@ -39,28 +40,29 @@ export const PriceChart: React.FC<Props> = ({ pricePoints }) => {
 
         const currency = filtered[0]?.currency ?? 'AUD';
         const vendorSet = new Set<string>();
-        for (const p of filtered) vendorSet.add(p.vendor!);
+        for (const p of filtered) vendorSet.add(p.vendor ?? 'Vendor missing.');
         const vendors = [...vendorSet].sort();
 
         // group by date string, keep latest price per vendor per day
         const byDate = new Map<string, { _ts: number; [key: string]: number }>();
         for (const p of filtered) {
-            const ts = new Date(p.scrapedAt!).getTime();
-            const dateKey = new Date(p.scrapedAt!).toLocaleDateString('en-AU', {
+            const ts = new Date(p.scrapedAt ?? 'Time missing.').getTime();
+            const dateKey = new Date(p.scrapedAt ?? 'Date missing.').toLocaleDateString('en-AU', {
                 day: '2-digit',
                 month: 'short',
                 year: '2-digit',
             });
 
-            if (!byDate.has(dateKey)) {
-                byDate.set(dateKey, { _ts: ts } as { _ts: number; [k: string]: number });
+            let entry = byDate.get(dateKey);
+            if (!entry) {
+                entry = { _ts: ts };
+                byDate.set(dateKey, entry);
             }
-            const entry = byDate.get(dateKey)!;
 
             // keep the latest entry per vendor on the same day
-            const vendorTsKey = `_ts_${p.vendor!}`;
+            const vendorTsKey = `_ts_${p.vendor ?? 'Vendor missing.'}`;
             if (!entry[vendorTsKey] || ts >= entry[vendorTsKey]) {
-                entry[p.vendor!] = p.price!;
+                entry[p.vendor ?? 'Vendor missing.'] = p.price ?? 0.00;
                 entry[vendorTsKey] = ts;
             }
 
@@ -94,6 +96,9 @@ export const PriceChart: React.FC<Props> = ({ pricePoints }) => {
     const formatPrice = (value: number) =>
         `${currency} $${value.toLocaleString('en-AU', { minimumFractionDigits: 2 })}`;
 
+    const formatTooltipValue = (value: ValueType | undefined) =>
+        formatPrice(typeof value === 'number' ? value : Number(value));
+
     return (
         <ResponsiveContainer width="100%" height={320}>
             <LineChart data={chartData} margin={{ top: 8, right: 16, left: 8, bottom: 4 }}>
@@ -105,14 +110,14 @@ export const PriceChart: React.FC<Props> = ({ pricePoints }) => {
                     axisLine={{ stroke: 'var(--border)' }}
                 />
                 <YAxis
-                    tickFormatter={(v) => `$${v.toLocaleString()}`}
+                    tickFormatter={(v: number) => `$${v.toLocaleString()}`}
                     tick={{ fill: 'var(--text)', fontSize: 11, fontFamily: 'var(--mono)' }}
                     tickLine={false}
                     axisLine={false}
                     width={72}
                 />
                 <Tooltip
-                    formatter={(value: number, name: string) => [formatPrice(value), name]}
+                    formatter={(value, name) => [formatTooltipValue(value), name]}
                     contentStyle={{
                         background: 'var(--code-bg)',
                         border: '1px solid var(--border)',
