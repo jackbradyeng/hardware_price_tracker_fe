@@ -4,7 +4,7 @@ import type { PageResponse } from '@/types/PageResponse.ts';
 
 export const getSSDPricePoints = async (): Promise<AbstractPricePointType[]> => {
 
-    const response = await fetch('/api/ssd_pricepoints?size=10000');
+    const response = await fetch('/api/v1/ssd_pricepoints?size=10000');
 
     if (!response.ok) {
         throw new Error('Network response failed.');
@@ -16,7 +16,7 @@ export const getSSDPricePoints = async (): Promise<AbstractPricePointType[]> => 
 export const getSSDPricePointsByModel
     = async (modelNumber: string): Promise<SSDDataAndPricePointType> => {
 
-    const response = await fetch(`/api/ssd_pricepoints/${modelNumber}?size=10000`);
+    const response = await fetch(`/api/v1/ssd_pricepoints/${modelNumber}?size=10000`);
 
     if (!response.ok) {
         throw new Error('Network response failed.');

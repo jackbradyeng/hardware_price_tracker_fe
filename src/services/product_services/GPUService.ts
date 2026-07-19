@@ -2,7 +2,7 @@ import type { GPUData } from '@/types/product_types/GPUType.ts';
 
 export const getGPUs = async (): Promise<GPUData[]> => {
 
-    const response = await fetch('/api/gpus');
+    const response = await fetch('/api/v1/gpus');
 
     if (!response.ok) {
         throw new Error('Network response failed.');

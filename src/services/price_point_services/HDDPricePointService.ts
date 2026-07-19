@@ -4,7 +4,7 @@ import type { PageResponse } from '@/types/PageResponse.ts';
 
 export const getHDDPricePoints = async (): Promise<AbstractPricePointType[]> => {
 
-    const response = await fetch('/api/hdd_pricepoints?size=10000');
+    const response = await fetch('/api/v1/hdd_pricepoints?size=10000');
 
     if (!response.ok) {
         throw new Error('Network response failed.');
@@ -16,7 +16,7 @@ export const getHDDPricePoints = async (): Promise<AbstractPricePointType[]> => 
 export const getHDDPricePointsByModel
     = async (modelNumber: string): Promise<HDDDataAndPricePointType> => {
 
-    const response = await fetch(`/api/hdd_pricepoints/${modelNumber}?size=10000`);
+    const response = await fetch(`/api/v1/hdd_pricepoints/${modelNumber}?size=10000`);
 
     if (!response.ok) {
         throw new Error('Network response failed.');

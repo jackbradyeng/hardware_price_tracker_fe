@@ -4,7 +4,7 @@ import type { PageResponse } from '@/types/PageResponse.ts';
 
 export const getRAMPricePoints = async (): Promise<AbstractPricePointType[]> => {
 
-    const response = await fetch('/api/ram_pricepoints?size=10000');
+    const response = await fetch('/api/v1/ram_pricepoints?size=10000');
 
     if (!response.ok) {
         throw new Error('Network response failed.');
@@ -16,7 +16,7 @@ export const getRAMPricePoints = async (): Promise<AbstractPricePointType[]> => 
 export const getRAMPricePointsByModel
     = async (modelNumber: string): Promise<RAMDataAndPricePointType> => {
 
-    const response = await fetch(`/api/ram_pricepoints/${modelNumber}?size=10000`);
+    const response = await fetch(`/api/v1/ram_pricepoints/${modelNumber}?size=10000`);
 
     if (!response.ok) {
         throw new Error('Network response failed.');

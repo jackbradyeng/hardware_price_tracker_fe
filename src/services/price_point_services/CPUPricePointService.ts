@@ -4,7 +4,7 @@ import type { PageResponse } from '@/types/PageResponse.ts';
 
 export const getCPUPricePoints = async (): Promise<AbstractPricePointType[]> => {
 
-    const response = await fetch('/api/cpu_pricepoints?size=10000');
+    const response = await fetch('/api/v1/cpu_pricepoints?size=10000');
 
     if (!response.ok) {
         throw new Error('Network response failed.');
@@ -16,7 +16,7 @@ export const getCPUPricePoints = async (): Promise<AbstractPricePointType[]> => 
 export const getCPUPricePointsByModel
     = async (modelNumber: string): Promise<CPUDataAndPricePointType> => {
 
-    const response = await fetch(`/api/cpu_pricepoints/${modelNumber}?size=10000`);
+    const response = await fetch(`/api/v1/cpu_pricepoints/${modelNumber}?size=10000`);
 
     if (!response.ok) {
         throw new Error('Network response failed.');

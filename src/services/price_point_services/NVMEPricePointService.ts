@@ -4,7 +4,7 @@ import type { PageResponse } from '@/types/PageResponse.ts';
 
 export const getNVMEPricePoints = async (): Promise<AbstractPricePointType[]> => {
 
-    const response = await fetch('/api/nvme_pricepoints?size=10000');
+    const response = await fetch('/api/v1/nvme_pricepoints?size=10000');
 
     if (!response.ok) {
         throw new Error('Network response failed.');
@@ -16,7 +16,7 @@ export const getNVMEPricePoints = async (): Promise<AbstractPricePointType[]> =>
 export const getNVMEPricePointsByModel
     = async (modelNumber: string): Promise<NVMEDataAndPricePointType> => {
 
-    const response = await fetch(`/api/nvme_pricepoints/${modelNumber}?size=10000`);
+    const response = await fetch(`/api/v1/nvme_pricepoints/${modelNumber}?size=10000`);
 
     if (!response.ok) {
         throw new Error('Network response failed.');

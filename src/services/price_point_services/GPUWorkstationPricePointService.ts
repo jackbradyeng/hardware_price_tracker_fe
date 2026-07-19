@@ -4,7 +4,7 @@ import type { PageResponse } from '@/types/PageResponse.ts';
 
 export const getGPUWorkstationPricePoints = async (): Promise<AbstractPricePointType[]> => {
 
-    const response = await fetch('/api/workstation_gpu_pricepoints?size=10000');
+    const response = await fetch('/api/v1/workstation_gpu_pricepoints?size=10000');
 
     if (!response.ok) {
         throw new Error('Network response failed.');
@@ -16,7 +16,7 @@ export const getGPUWorkstationPricePoints = async (): Promise<AbstractPricePoint
 export const getGPUWorkstationPricePointsByModel
     = async (modelNumber: string): Promise<GPUWorkstationDataAndPricePointType> => {
 
-    const response = await fetch(`/api/workstation_gpu_pricepoints/${modelNumber}?size=10000`);
+    const response = await fetch(`/api/v1/workstation_gpu_pricepoints/${modelNumber}?size=10000`);
 
     if (!response.ok) {
         throw new Error('Network response failed.');
