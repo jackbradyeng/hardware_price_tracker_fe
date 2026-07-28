@@ -1,6 +1,5 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LineChart, Line, ResponsiveContainer } from 'recharts';
 import { getGPUs } from '@/services/product_services/GPUService';
 import { getCPUs } from '@/services/product_services/CPUService';
 import { getRAMs } from '@/services/product_services/RAMService';
@@ -46,8 +45,6 @@ const TYPE_CONFIG: Record<ProductType, { label: string; detailBase: string }> = 
     nvme: { label: 'NVMe Drives', detailBase: '/nvme_pricepoints' },
 };
 
-const SPARKLINE_COLORS = ['#00e676', '#ff1744', '#00bcd4', '#ffab00', '#76ff03', '#ff6d00', '#e040fb'];
-
 function getModelNumber(product: AnyProduct): string | null {
     return product.modelNumber;
 }
@@ -56,75 +53,9 @@ function getIsActive(product: AnyProduct): boolean {
     return product.isActive;
 }
 
-// ---- Mini sparkline ----
-
-function MiniPriceChart({ pricePoints }: { pricePoints: MiniPricePoint[] }) {
-    const { chartData, vendors } = useMemo(() => {
-        const filtered = pricePoints.filter(
-            (p): p is MiniPricePoint & { vendor: string; scrapedAt: string; price: number } =>
-                p.scrapedAt !== null && p.vendor !== null && p.price !== null
-        );
-        const vendorSet = new Set<string>();
-        for (const p of filtered) vendorSet.add(p.vendor);
-        const vendors = [...vendorSet].sort();
-
-        const byDate = new Map<string, { _ts: number; [key: string]: number }>();
-        for (const p of filtered) {
-            const ts = new Date(p.scrapedAt).getTime();
-            const dateKey = new Date(p.scrapedAt).toLocaleDateString('en-AU', {
-                day: '2-digit', month: 'short', year: '2-digit',
-            });
-            let entry = byDate.get(dateKey);
-            if (!entry) {
-                entry = { _ts: ts } as { _ts: number; [k: string]: number };
-                byDate.set(dateKey, entry);
-            }
-            const vendorTsKey = `_ts_${p.vendor}`;
-            if (!entry[vendorTsKey] || ts >= entry[vendorTsKey]) {
-                entry[p.vendor] = p.price;
-                entry[vendorTsKey] = ts;
-            }
-            if (ts < entry._ts) entry._ts = ts;
-        }
-
-        const chartData = [...byDate.entries()]
-            .sort(([, a], [, b]) => a._ts - b._ts)
-            .map(([date, values]) => {
-                const rest = Object.fromEntries(Object.entries(values)
-                    .filter(([k]) => !k.startsWith('_')));
-                return { date, ...rest };
-            });
-
-        return { chartData, vendors };
-    }, [pricePoints]);
-
-    if (chartData.length < 2) return null;
-
-    return (
-        <div className="mt-3 -mx-1" style={{ opacity: 0.7 }}>
-            <ResponsiveContainer width="100%" height={48}>
-                <LineChart data={chartData} margin={{ top: 2, right: 2, left: 2, bottom: 2 }}>
-                    {vendors.map((vendor, i) => (
-                        <Line
-                            key={vendor}
-                            type="monotone"
-                            dataKey={vendor}
-                            stroke={SPARKLINE_COLORS[i % SPARKLINE_COLORS.length]}
-                            strokeWidth={1.5}
-                            dot={false}
-                            connectNulls={false}
-                            isAnimationActive={false}
-                        />
-                    ))}
-                </LineChart>
-            </ResponsiveContainer>
-        </div>
-    );
-}
-
 // ---- Card renderers ----
 
-function GPUGridCard({ gpu, onClick, pricePoints }: { gpu: GPUData; onClick: () => void; pricePoints: MiniPricePoint[] }) {
+function GPUGridCard({ gpu, onClick }: { gpu: GPUData; onClick: () => void; pricePoints: MiniPricePoint[] }) {
     return (
         <button
             onClick={onClick}
@@ -159,12 +90,11 @@ function GPUGridCard({ gpu, onClick, pricePoints }: { gpu: GPUData; onClick: () 
             <p className="text-xs" style={{ color: 'var(--text)' }}>
                 {gpu.chip} &middot; {gpu.chipManufacturer}
             </p>
-            <MiniPriceChart pricePoints={pricePoints} />
         </button>
     );
 }
 
-function CPUGridCard({ cpu, onClick, pricePoints }: { cpu: CPUData; onClick: () => void; pricePoints: MiniPricePoint[] }) {
+function CPUGridCard({ cpu, onClick }: { cpu: CPUData; onClick: () => void; pricePoints: MiniPricePoint[] }) {
     return (
         <button
             onClick={onClick}
@@ -200,12 +130,11 @@ function CPUGridCard({ cpu, onClick, pricePoints }: { cpu: CPUData; onClick: () 
                 {cpu.chipManufacturer} {cpu.series && `· ${cpu.series}`}
                 {cpu.cores && ` · ${String(cpu.cores)}C/${String(cpu.threads)}T`}
             </p>
-            <MiniPriceChart pricePoints={pricePoints} />
         </button>
     );
 }
 
-function RAMGridCard({ ram, onClick, pricePoints }: { ram: RAMData; onClick: () => void; pricePoints: MiniPricePoint[] }) {
+function RAMGridCard({ ram, onClick }: { ram: RAMData; onClick: () => void; pricePoints: MiniPricePoint[] }) {
     return (
         <button
             onClick={onClick}
@@ -242,12 +171,11 @@ function RAMGridCard({ ram, onClick, pricePoints }: { ram: RAMData; onClick: () 
                 {ram.volume && ` · ${String(ram.volume)}GB`}
                 {ram.clockRate && ` · ${String(ram.clockRate)}MHz`}
             </p>
-            <MiniPriceChart pricePoints={pricePoints} />
         </button>
     );
 }
 
-function GPUWSGridCard({ gpu, onClick, pricePoints }:
+function GPUWSGridCard({ gpu, onClick }:
                        { gpu: GPUWorkstationData; onClick: () => void; pricePoints: MiniPricePoint[] }) {
     return (
         <button
@@ -285,12 +213,11 @@ function GPUWSGridCard({ gpu, onClick, pricePoints }:
                 {gpu.gpuMemory && ` · ${String(gpu.gpuMemory)}GB`}
                 {gpu.cudaCores && ` · ${String(gpu.cudaCores)} CUDA`}
             </p>
-            <MiniPriceChart pricePoints={pricePoints} />
         </button>
     );
 }
 
-function SSDGridCard({ ssd, onClick, pricePoints }: { ssd: SSDData; onClick: () => void; pricePoints: MiniPricePoint[] }) {
+function SSDGridCard({ ssd, onClick }: { ssd: SSDData; onClick: () => void; pricePoints: MiniPricePoint[] }) {
     return (
         <button
             onClick={onClick}
@@ -327,12 +254,11 @@ function SSDGridCard({ ssd, onClick, pricePoints }: { ssd: SSDData; onClick: () 
                 {ssd.capacity && ` · ${String(ssd.capacity)}GB`}
                 {ssd.storageInterface && ` · ${ssd.storageInterface}`}
             </p>
-            <MiniPriceChart pricePoints={pricePoints} />
         </button>
     );
 }
 
-function HDDGridCard({ hdd, onClick, pricePoints }: { hdd: HDDData; onClick: () => void; pricePoints: MiniPricePoint[] }) {
+function HDDGridCard({ hdd, onClick }: { hdd: HDDData; onClick: () => void; pricePoints: MiniPricePoint[] }) {
     return (
         <button
             onClick={onClick}
@@ -370,12 +296,11 @@ function HDDGridCard({ hdd, onClick, pricePoints }: { hdd: HDDData; onClick: () 
                 {hdd.rpm && ` · ${String(hdd.rpm)}RPM`}
                 {hdd.formFactor && ` · ${String(hdd.formFactor)}"`}
             </p>
-            <MiniPriceChart pricePoints={pricePoints} />
         </button>
     );
 }
 
-function NVMEGridCard({ nvme, onClick, pricePoints }: { nvme: NVMEData; onClick: () => void; pricePoints: MiniPricePoint[] }) {
+function NVMEGridCard({ nvme, onClick }: { nvme: NVMEData; onClick: () => void; pricePoints: MiniPricePoint[] }) {
     return (
         <button
             onClick={onClick}
@@ -413,7 +338,6 @@ function NVMEGridCard({ nvme, onClick, pricePoints }: { nvme: NVMEData; onClick:
                 {nvme.storageInterface && ` · ${nvme.storageInterface}`}
                 {nvme.includesHeatSink && ' · heatsink'}
             </p>
-            <MiniPriceChart pricePoints={pricePoints} />
         </button>
     );
 }
