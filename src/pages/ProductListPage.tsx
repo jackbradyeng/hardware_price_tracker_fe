@@ -53,9 +53,30 @@ function getIsActive(product: AnyProduct): boolean {
     return product.isActive;
 }
 
+function getLastPrice(pricePoints: MiniPricePoint[]): number | null {
+    let latest: MiniPricePoint | null = null;
+    for (const pp of pricePoints) {
+        if (pp.price === null || !pp.scrapedAt) continue;
+        if (!latest?.scrapedAt || new Date(pp.scrapedAt).getTime() > new Date(latest.scrapedAt).getTime()) {
+            latest = pp;
+        }
+    }
+    return latest?.price ?? null;
+}
+
+function LastPriceLabel({ price }: { price: number | null }) {
+    if (price === null) return null;
+    return (
+        <p className="text-xs font-mono mt-1.5" style={{ color: 'var(--accent)' }}>
+            Last Price: ${price.toLocaleString('en-AU', { minimumFractionDigits: 2 })}
+        </p>
+    );
+}
+
 // ---- Card renderers ----
 
-function GPUGridCard({ gpu, onClick }: { gpu: GPUData; onClick: () => void; pricePoints: MiniPricePoint[] }) {
+function GPUGridCard({ gpu, onClick, pricePoints }: { gpu: GPUData; onClick: () => void; pricePoints: MiniPricePoint[] }) {
+    const lastPrice = getLastPrice(pricePoints);
     return (
         <button
             onClick={onClick}
@@ -90,11 +111,13 @@ function GPUGridCard({ gpu, onClick }: { gpu: GPUData; onClick: () => void; pric
             <p className="text-xs" style={{ color: 'var(--text)' }}>
                 {gpu.chip} &middot; {gpu.chipManufacturer}
             </p>
+            <LastPriceLabel price={lastPrice} />
         </button>
     );
 }
 
-function CPUGridCard({ cpu, onClick }: { cpu: CPUData; onClick: () => void; pricePoints: MiniPricePoint[] }) {
+function CPUGridCard({ cpu, onClick, pricePoints }: { cpu: CPUData; onClick: () => void; pricePoints: MiniPricePoint[] }) {
+    const lastPrice = getLastPrice(pricePoints);
     return (
         <button
             onClick={onClick}
@@ -130,11 +153,13 @@ function CPUGridCard({ cpu, onClick }: { cpu: CPUData; onClick: () => void; pric
                 {cpu.chipManufacturer} {cpu.series && `· ${cpu.series}`}
                 {cpu.cores && ` · ${String(cpu.cores)}C/${String(cpu.threads)}T`}
             </p>
+            <LastPriceLabel price={lastPrice} />
         </button>
     );
 }
 
-function RAMGridCard({ ram, onClick }: { ram: RAMData; onClick: () => void; pricePoints: MiniPricePoint[] }) {
+function RAMGridCard({ ram, onClick, pricePoints }: { ram: RAMData; onClick: () => void; pricePoints: MiniPricePoint[] }) {
+    const lastPrice = getLastPrice(pricePoints);
     return (
         <button
             onClick={onClick}
@@ -171,12 +196,14 @@ function RAMGridCard({ ram, onClick }: { ram: RAMData; onClick: () => void; pric
                 {ram.volume && ` · ${String(ram.volume)}GB`}
                 {ram.clockRate && ` · ${String(ram.clockRate)}MHz`}
             </p>
+            <LastPriceLabel price={lastPrice} />
         </button>
     );
 }
 
-function GPUWSGridCard({ gpu, onClick }:
+function GPUWSGridCard({ gpu, onClick, pricePoints }:
                        { gpu: GPUWorkstationData; onClick: () => void; pricePoints: MiniPricePoint[] }) {
+    const lastPrice = getLastPrice(pricePoints);
     return (
         <button
             onClick={onClick}
@@ -213,11 +240,13 @@ function GPUWSGridCard({ gpu, onClick }:
                 {gpu.gpuMemory && ` · ${String(gpu.gpuMemory)}GB`}
                 {gpu.cudaCores && ` · ${String(gpu.cudaCores)} CUDA`}
             </p>
+            <LastPriceLabel price={lastPrice} />
         </button>
     );
 }
 
-function SSDGridCard({ ssd, onClick }: { ssd: SSDData; onClick: () => void; pricePoints: MiniPricePoint[] }) {
+function SSDGridCard({ ssd, onClick, pricePoints }: { ssd: SSDData; onClick: () => void; pricePoints: MiniPricePoint[] }) {
+    const lastPrice = getLastPrice(pricePoints);
     return (
         <button
             onClick={onClick}
@@ -254,11 +283,13 @@ function SSDGridCard({ ssd, onClick }: { ssd: SSDData; onClick: () => void; pric
                 {ssd.capacity && ` · ${String(ssd.capacity)}GB`}
                 {ssd.storageInterface && ` · ${ssd.storageInterface}`}
             </p>
+            <LastPriceLabel price={lastPrice} />
         </button>
     );
 }
 
-function HDDGridCard({ hdd, onClick }: { hdd: HDDData; onClick: () => void; pricePoints: MiniPricePoint[] }) {
+function HDDGridCard({ hdd, onClick, pricePoints }: { hdd: HDDData; onClick: () => void; pricePoints: MiniPricePoint[] }) {
+    const lastPrice = getLastPrice(pricePoints);
     return (
         <button
             onClick={onClick}
@@ -296,11 +327,13 @@ function HDDGridCard({ hdd, onClick }: { hdd: HDDData; onClick: () => void; pric
                 {hdd.rpm && ` · ${String(hdd.rpm)}RPM`}
                 {hdd.formFactor && ` · ${String(hdd.formFactor)}"`}
             </p>
+            <LastPriceLabel price={lastPrice} />
         </button>
     );
 }
 
-function NVMEGridCard({ nvme, onClick }: { nvme: NVMEData; onClick: () => void; pricePoints: MiniPricePoint[] }) {
+function NVMEGridCard({ nvme, onClick, pricePoints }: { nvme: NVMEData; onClick: () => void; pricePoints: MiniPricePoint[] }) {
+    const lastPrice = getLastPrice(pricePoints);
     return (
         <button
             onClick={onClick}
@@ -338,6 +371,7 @@ function NVMEGridCard({ nvme, onClick }: { nvme: NVMEData; onClick: () => void; 
                 {nvme.storageInterface && ` · ${nvme.storageInterface}`}
                 {nvme.includesHeatSink && ' · heatsink'}
             </p>
+            <LastPriceLabel price={lastPrice} />
         </button>
     );
 }
