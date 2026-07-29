@@ -1,0 +1,14 @@
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend.Dockerfile
+    restart: always
+    networks:
+      - price_tracker_net
+
+# Shared with the backend and Caddy proxy compose projects so they can reach this container by name. Create it once on
+# the host: docker network create price_tracker_net.
+networks:
+  price_tracker_net:
+    external: true
