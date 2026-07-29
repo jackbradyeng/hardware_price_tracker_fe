@@ -1,0 +1,24 @@
+# Version control
+.git
+.gitignore
+.gitattributes
+
+# IDE
+.idea
+.vscode
+
+# Dependencies / build output — regenerated inside the image by the build stage
+node_modules
+dist
+dist-ssr
+
+# Demo-only assets referenced in README — not needed in the build
+photos
+
+# Docs / project meta — not needed at runtime
+README.md
+
+# Docker itself
+frontend.Dockerfile
+docker-compose.yml
+.dockerignore
