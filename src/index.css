@@ -90,3 +90,8 @@ code {
   padding: 4px 8px;
   background: var(--code-bg);
 }
+
+.font-chakra-petch {
+  font-family: 'Chakra Petch', var(--sans), sans-serif;
+  letter-spacing: 0.01em;
+}

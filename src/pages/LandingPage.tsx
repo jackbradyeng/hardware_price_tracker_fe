@@ -52,7 +52,7 @@ export const LandingPage: React.FC = () => {
     return (
         <div className="px-6 py-10 max-w-4xl mx-auto" style={{ textAlign: 'left' }}>
             <header className="mb-10 text-center">
-                <h1 className="text-2xl font-semibold mb-1" style={{ color: 'var(--text-h)', margin: '0 0 6px' }}>
+                <h1 className="font-chakra-petch" style={{ fontSize: '3.5rem', lineHeight: 1.2, margin: '0 0 6px' }}>
                     Hardware Price Tracker
                 </h1>
                 <p style={{ color: 'var(--text)', fontSize: '0.9rem' }}>
