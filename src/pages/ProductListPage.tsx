@@ -73,7 +73,7 @@ function LastPriceLabel({ price }: { price: number | null }) {
     );
 }
 
-// ---- Card renderers ----
+// --- CARD RENDERS ---
 
 function GPUGridCard({ gpu, onClick, pricePoints }: { gpu: GPUData; onClick: () => void; pricePoints: MiniPricePoint[] }) {
     const lastPrice = getLastPrice(pricePoints);
@@ -376,7 +376,7 @@ function NVMEGridCard({ nvme, onClick, pricePoints }: { nvme: NVMEData; onClick:
     );
 }
 
-// ---- List row renderers ----
+// --- LIST ROW RENDERS ---
 
 function ListRow({
     product,
@@ -424,7 +424,7 @@ function ListRow({
     );
 }
 
-// ---- Main component ----
+// --- MAIN COMPONENT ---
 
 interface Props {
     type: ProductType;
@@ -485,26 +485,40 @@ export const ProductListPage: React.FC<Props> = ({ type }) => {
         void load();
     }, [type]);
 
-    const chipOptions = type === 'gpu'
+    // --- GPU FILTERS ---
+    const gpuChipOptions = type === 'gpu'
         ? [...new Set(products.map(p => (p as GPUData).chip).filter(Boolean))] as string[]
         : [];
 
-    const brandOptions = type === 'gpu'
+    const gpuBrandOptions = type === 'gpu'
         ? [...new Set(products.map(p => (p as GPUData).boardManufacturer).filter(Boolean))] as string[]
         : [];
 
-    const filteredProducts = type === 'gpu'
+    // --- CPU FILTERS ---
+    const cpuBrandOptions = type === 'cpu'
+        ? [...new Set(products.map(p => (p as CPUData).chipManufacturer).filter(Boolean))] as string[]
+        : [];
+
+    // --- PRODUCT FILTER ---
+    const filteredProducts
+        = type === 'gpu'
         ? products.filter(p => {
             const gpu = p as GPUData;
-            return (!chipFilter || gpu.chip === chipFilter) && (!brandFilter || gpu.boardManufacturer === brandFilter);
+            return (!chipFilter || gpu.chip == chipFilter) && (!brandFilter || gpu.boardManufacturer === brandFilter);
         })
-        : products;
+        : type === 'cpu'
+            ? products.filter(p => {
+                const cpu = p as CPUData;
+                return (!brandFilter || cpu.chipManufacturer === brandFilter);
+            })
+        : products
 
     const handleClick = (product: AnyProduct) => {
         const model = getModelNumber(product);
         if (model) void navigate(`${config.detailBase}/${encodeURIComponent(model)}`);
     };
 
+    // --- LOADING RENDER ---
     if (isLoading) {
         return (
             <div className="px-6 py-10 max-w-5xl mx-auto" style={{ textAlign: 'left' }}>
@@ -513,6 +527,7 @@ export const ProductListPage: React.FC<Props> = ({ type }) => {
         );
     }
 
+    // --- ERROR RENDER ---
     if (error) {
         return (
             <div className="px-6 py-10 max-w-5xl mx-auto" style={{ textAlign: 'left' }}>
@@ -522,6 +537,8 @@ export const ProductListPage: React.FC<Props> = ({ type }) => {
     }
 
     return (
+
+        // VIEW MODE BUTTON
         <div className="px-6 py-8 max-w-5xl mx-auto" style={{ textAlign: 'left' }}>
             <div className="flex items-center justify-between mb-6">
                 <div>
@@ -557,9 +574,11 @@ export const ProductListPage: React.FC<Props> = ({ type }) => {
                 </div>
             </div>
 
-            {type === 'gpu' && (chipOptions.length > 0 || brandOptions.length > 0) && (
+            {type === 'gpu' && (gpuChipOptions.length > 0 || gpuBrandOptions.length > 0) && (
+
+                // GPU CHIP & BRAND FILTER BUTTONS
                 <div className="flex items-center gap-4 mb-4 flex-wrap">
-                    {chipOptions.length > 0 && (
+                    {gpuChipOptions.length > 0 && (
                         <div className="flex items-center gap-2">
                             <label className="text-xs font-mono" style={{ color: 'var(--text)', opacity: 0.7 }}>
                                 chip filter
@@ -575,14 +594,13 @@ export const ProductListPage: React.FC<Props> = ({ type }) => {
                                 }}
                             >
                                 <option value="">all</option>
-                                {chipOptions.map(chip => (
+                                {gpuChipOptions.map(chip => (
                                     <option key={chip} value={chip}>{chip}</option>
                                 ))}
                             </select>
                         </div>
                     )}
-
-                    {brandOptions.length > 0 && (
+                    {gpuBrandOptions.length > 0 && (
                         <div className="flex items-center gap-2">
                             <label className="text-xs font-mono" style={{ color: 'var(--text)', opacity: 0.7 }}>
                                 brand filter
@@ -598,7 +616,7 @@ export const ProductListPage: React.FC<Props> = ({ type }) => {
                                 }}
                             >
                                 <option value="">all</option>
-                                {brandOptions.map(brand => (
+                                {gpuBrandOptions.map(brand => (
                                     <option key={brand} value={brand}>{brand}</option>
                                 ))}
                             </select>
@@ -607,23 +625,57 @@ export const ProductListPage: React.FC<Props> = ({ type }) => {
                 </div>
             )}
 
+            {type === 'cpu' && (cpuBrandOptions.length > 0) && (
+
+                // CPU BRAND FILTER BUTTON
+                <div className="flex items-center gap-4 mb-4 flex-wrap">
+                    <div className="flex items-center gap-2">
+                        <label className="text-xs font-mono" style={{ color: 'var(--text)', opacity: 0.7 }}>
+                            chip filter
+                        </label>
+                        <select
+                            value={brandFilter ?? ''}
+                            onChange={(e) => { setBrandFilter(e.target.value || null); }}
+                            className="text-xs font-mono px-2 py-1 rounded border"
+                            style={{
+                                background: 'var(--bg)',
+                                color: 'var(--text)',
+                                borderColor: brandFilter ? 'var(--accent-border)' : 'var(--border)',
+                            }}
+                        >
+                            <option value="">all</option>
+                            {cpuBrandOptions.map(brand => (
+                                <option key={brand} value={brand}>{brand}</option>
+                            ))}
+                        </select>
+                    </div>
+                </div>
+            )}
+
             {viewMode === 'grid' ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                     {filteredProducts.map((product, i) => {
                         const pts = pricePointMap.get(getModelNumber(product) ?? '') ?? [];
                         if (type === 'gpu')
-                            return <GPUGridCard key={i} gpu={product as GPUData} onClick={() => { handleClick(product); }} pricePoints={pts} />;
+                            return <GPUGridCard key={i} gpu={product as GPUData} onClick={() => {
+                                handleClick(product); }} pricePoints={pts} />;
                         if (type === 'cpu')
-                            return <CPUGridCard key={i} cpu={product as CPUData} onClick={() => { handleClick(product); }} pricePoints={pts} />;
+                            return <CPUGridCard key={i} cpu={product as CPUData} onClick={() => {
+                                handleClick(product); }} pricePoints={pts} />;
                         if (type === 'ram')
-                            return <RAMGridCard key={i} ram={product as RAMData} onClick={() => { handleClick(product); }} pricePoints={pts} />;
+                            return <RAMGridCard key={i} ram={product as RAMData} onClick={() => {
+                                handleClick(product); }} pricePoints={pts} />;
                         if (type === 'ssd')
-                            return <SSDGridCard key={i} ssd={product as SSDData} onClick={() => { handleClick(product); }} pricePoints={pts} />;
+                            return <SSDGridCard key={i} ssd={product as SSDData} onClick={() => {
+                                handleClick(product); }} pricePoints={pts} />;
                         if (type === 'hdd')
-                            return <HDDGridCard key={i} hdd={product as HDDData} onClick={() => { handleClick(product); }} pricePoints={pts} />;
+                            return <HDDGridCard key={i} hdd={product as HDDData} onClick={() => {
+                                handleClick(product); }} pricePoints={pts} />;
                         if (type === 'nvme')
-                            return <NVMEGridCard key={i} nvme={product as NVMEData} onClick={() => { handleClick(product); }} pricePoints={pts} />;
-                        return <GPUWSGridCard key={i} gpu={product as GPUWorkstationData} onClick={() => { handleClick(product); }} pricePoints={pts} />;
+                            return <NVMEGridCard key={i} nvme={product as NVMEData} onClick={() => {
+                                handleClick(product); }} pricePoints={pts} />;
+                        return <GPUWSGridCard key={i} gpu={product as GPUWorkstationData} onClick={() => {
+                            handleClick(product); }} pricePoints={pts} />;
                     })}
                 </div>
             ) : (
