@@ -22,15 +22,10 @@ interface Props {
     pricePoints: PricePoint[];
 }
 
-const VENDOR_COLORS = [
-    '#00e676',
-    '#ff1744',
-    '#00bcd4',
-    '#ffab00',
-    '#76ff03',
-    '#ff6d00',
-    '#e040fb',
-];
+const VENDOR_COLORS = new Map<string, string>([
+    ['UMART', '#00e676'],
+    ['SCORPTEC', '#ff1744'],
+]);
 
 export const PriceChart: React.FC<Props> = ({ pricePoints }) => {
     const { chartData, vendors, currency } = useMemo(() => {
@@ -131,12 +126,12 @@ export const PriceChart: React.FC<Props> = ({ pricePoints }) => {
                 <Legend
                     wrapperStyle={{ fontSize: '12px', fontFamily: 'var(--mono)', paddingTop: '12px' }}
                 />
-                {vendors.map((vendor, i) => (
+                {vendors.map((vendor) => (
                     <Line
                         key={vendor}
                         type="monotone"
                         dataKey={vendor}
-                        stroke={VENDOR_COLORS[i % VENDOR_COLORS.length]}
+                        stroke={VENDOR_COLORS.get(vendor)}
                         strokeWidth={2}
                         dot={false}
                         activeDot={{ r: 4 }}
