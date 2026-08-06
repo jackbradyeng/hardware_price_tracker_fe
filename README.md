@@ -1,6 +1,6 @@
 # Hardware Price Tracker (Frontend)
 
-A multi-page interface for tracking the price history of computer hardware components across online retailers. Built with React 19, TypeScript, and Recharts, it interfaces with a Spring Boot REST API that scrapes vendor pricing data on a daily schedule.
+A multi-page interface for tracking the price history of computer hardware components across online retailers. Built with React 19, TypeScript, and Recharts, it interfaces with a Spring Boot REST API backend via a Docker network in production.
 
 > This repository covers the **frontend only**. The backend (Spring Boot + PostgreSQL) has its own README.
 
@@ -8,7 +8,7 @@ A multi-page interface for tracking the price history of computer hardware compo
 
 ## Overview
 
-This application allows users to browse time-series pricing data on computer hardware across several categories — Consumer GPUs, CPUs, RAM, Workstation GPUs, SSDs, HDDs, and NVMe drives — and view interactive charts for each product, broken down by vendor. The goal is to give users a clear picture of how prices move over time across the Australian market, with the intention to extend coverage to US vendors in the future. The application was created in response to the extreme pricing volatility within the PC market.
+This application allows users to browse time-series pricing data on computer hardware across several categories — Consumer GPUs, CPUs, RAM, Workstation GPUs, SSDs, HDDs, and NVMe drives — and view interactive charts for each product, broken down by vendor. The goal is to give users a clear picture of how prices move over time across the Australian market, with the intention to extend coverage to US vendors in the future. The application was created in response to the considerable pricing volatility within the PC market.
 
 ---
 
@@ -69,73 +69,25 @@ The service layer mirrors the backend's REST structure. Each hardware category h
 
 ## Backend Integration
 
-The frontend proxies all API calls through Vite's dev server to the Spring Boot backend running on `http://localhost:8080`.
+The frontend proxies all API calls through a Caddy reverse proxy in production. Communication with the backend is mediated through a local Docker network on the deployed instance(s).
 
 **Endpoints consumed:**
 
-| Method | Endpoint | Description |
-|---|---|---|
-| `GET` | `/api/gpus` | All consumer GPU products |
-| `GET` | `/api/cpus` | All CPU products |
-| `GET` | `/api/ram` | All RAM products |
-| `GET` | `/api/workstation_gpus` | All workstation GPU products |
-| `GET` | `/api/ssds` | All SSD products |
-| `GET` | `/api/hdds` | All HDD products |
-| `GET` | `/api/nvmes` | All NVMe drive products |
-| `GET` | `/api/gpu_pricepoints/{modelNumber}` | GPU specs + full price history |
-| `GET` | `/api/cpu_pricepoints/{modelNumber}` | CPU specs + full price history |
-| `GET` | `/api/ram_pricepoints/{modelNumber}` | RAM specs + full price history |
-| `GET` | `/api/workstation_gpu_pricepoints/{modelNumber}` | Workstation GPU specs + price history |
-| `GET` | `/api/ssd_pricepoints/{modelNumber}` | SSD specs + full price history |
-| `GET` | `/api/hdd_pricepoints/{modelNumber}` | HDD specs + full price history |
-| `GET` | `/api/nvme_pricepoints/{modelNumber}` | NVMe drive specs + full price history |
+| Method | Endpoint                                            | Description |
+|---|-----------------------------------------------------|---|
+| `GET` | `/api/v1/gpus`                                      | All consumer GPU products |
+| `GET` | `/api/v1/cpus`                                      | All CPU products |
+| `GET` | `/api/v1/ram`                                       | All RAM products |
+| `GET` | `/api/v1/workstation_gpus`                          | All workstation GPU products |
+| `GET` | `/api/v1/ssds`                                      | All SSD products |
+| `GET` | `/api/v1/hdds`                                      | All HDD products |
+| `GET` | `/api/v1/nvmes`                                     | All NVMe drive products |
+| `GET` | `/api/v1/gpu-pricepoints/{modelNumber}`             | GPU specs + full price history |
+| `GET` | `/api/v1/cpu-pricepoints/{modelNumber}`             | CPU specs + full price history |
+| `GET` | `/api/v1/ram-pricepoints/{modelNumber}`             | RAM specs + full price history |
+| `GET` | `/api/v1/workstation-gpu-pricepoints/{modelNumber}` | Workstation GPU specs + price history |
+| `GET` | `/api/v1/ssd-pricepoints/{modelNumber}`             | SSD specs + full price history |
+| `GET` | `/api/v1/hdd-pricepoints/{modelNumber}`             | HDD specs + full price history |
+| `GET` | `/api/v1/nvme-pricepoints/{modelNumber}`            | NVMe drive specs + full price history |
 
-Price data is collected by a **JSoup web scraper** running on a **daily CRON schedule** in the backend, sourcing prices from Australian online retailers including Umart Online.
-
----
-
-## Screenshots
-
-### Landing Page
-
-![Landing Page](photos/LandingPage.png)
-
-### Product List Page
-
-![ConsumerGPUsProductPage](photos/ConsumerGPUsProductPage.png)
-
-### Product Detail Page
-
-![ProductPageDetail](photos/ProductPageDetail.png)
-
----
-
-## Getting Started
-
-**Prerequisites:** Node.js 18+, and the backend API running on port `8080`.
-
-```bash
-# Install dependencies
-npm install
-
-# Start the development server (http://localhost:3000)
-npm run dev
-
-# Type-check and build for production
-npm run build
-
-# Lint the codebase
-npm run lint
-```
-
----
-
-## Roadmap
-
-- [X] Type-filter for consumer GPUs
-- [X] Brand-filter for consumer GPUs
-- [X] HDD and SSD product categories
-- [ ] Scorptec vendor tracking
-- [ ] PCCG vendor tracking
-- [ ] Pricing alert system to notify users of flash sales
-- [ ] Hosted deployment (likely Oracle Cloud or AWS Lightsail)
+Price data is collected by a **JSoup web scraper** running on a **daily CRON schedule** on a separate backend microservice, sourcing prices from Australian online retailers including Umart Online & Scorptec.

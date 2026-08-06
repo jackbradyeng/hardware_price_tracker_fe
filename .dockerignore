@@ -12,9 +12,6 @@ node_modules
 dist
 dist-ssr
 
-# Demo-only assets referenced in README — not needed in the build
-photos
-
 # Docs / project meta — not needed at runtime
 README.md
 
