@@ -75,13 +75,19 @@ function LastPriceLabel({ price }: { price: number | null }) {
 
 // --- CARD RENDERS ---
 
-function GPUGridCard({ gpu, onClick, pricePoints }: { gpu: GPUData; onClick: () => void; pricePoints: MiniPricePoint[] }) {
+function GenericGridCard({ product, onClick, pricePoints, children }: {
+    product: AnyProduct;
+    onClick: () => void;
+    pricePoints: MiniPricePoint[];
+    children?: React.ReactNode;
+}) {
     const lastPrice = getLastPrice(pricePoints);
     return (
         <button
             onClick={onClick}
             className="text-left p-4 rounded-lg border transition-all cursor-pointer w-full"
-            style={{ background: 'var(--bg)', borderColor: getIsActive(gpu) ? 'var(--border)' : 'var(--border)', opacity: getIsActive(gpu) ? 1 : 0.55 }}
+            style={{ background: 'var(--bg)', borderColor: getIsActive(product) ? 'var(--border)' : 'var(--border)',
+                opacity: getIsActive(product) ? 1 : 0.55 }}
             onMouseEnter={(e) => {
                 (e.currentTarget as HTMLElement).style.borderColor = 'var(--accent-border)';
                 (e.currentTarget as HTMLElement).style.background = 'var(--accent-bg)';
@@ -95,285 +101,23 @@ function GPUGridCard({ gpu, onClick, pricePoints }: { gpu: GPUData; onClick: () 
                 <span
                     className="text-xs font-mono px-1.5 py-0.5 rounded"
                     style={{
-                        background: gpu.isActive ? 'rgba(16,185,129,0.12)' : 'var(--code-bg)',
-                        color: gpu.isActive ? '#10b981' : 'var(--text)',
+                        background: product.isActive ? 'rgba(16,185,129,0.12)' : 'var(--code-bg)',
+                        color: product.isActive ? '#10b981' : 'var(--text)',
                     }}
                 >
-                    {gpu.isActive ? 'active' : 'inactive'}
+                    {product.isActive ? 'active' : 'inactive'}
                 </span>
                 <span className="text-xs font-mono" style={{ color: 'var(--text)', opacity: 0.6 }}>
-                    {gpu.modelNumber}
+                    {product.modelNumber}
                 </span>
             </div>
             <p className="font-semibold mb-0.5 leading-tight" style={{ color: 'var(--text-h)', fontSize: '0.9rem' }}>
-                {gpu.boardManufacturer} {gpu.name}
+                {product.name}
             </p>
-            <p className="text-xs" style={{ color: 'var(--text)' }}>
-                {gpu.chip} &middot; {gpu.chipManufacturer}
-            </p>
+            {children}
             <LastPriceLabel price={lastPrice} />
         </button>
-    );
-}
-
-function CPUGridCard({ cpu, onClick, pricePoints }: { cpu: CPUData; onClick: () => void; pricePoints: MiniPricePoint[] }) {
-    const lastPrice = getLastPrice(pricePoints);
-    return (
-        <button
-            onClick={onClick}
-            className="text-left p-4 rounded-lg border transition-all cursor-pointer w-full"
-            style={{ background: 'var(--bg)', borderColor: 'var(--border)', opacity: cpu.isActive ? 1 : 0.55 }}
-            onMouseEnter={(e) => {
-                (e.currentTarget as HTMLElement).style.borderColor = 'var(--accent-border)';
-                (e.currentTarget as HTMLElement).style.background = 'var(--accent-bg)';
-            }}
-            onMouseLeave={(e) => {
-                (e.currentTarget as HTMLElement).style.borderColor = 'var(--border)';
-                (e.currentTarget as HTMLElement).style.background = 'var(--bg)';
-            }}
-        >
-            <div className="flex justify-between items-start mb-2">
-                <span
-                    className="text-xs font-mono px-1.5 py-0.5 rounded"
-                    style={{
-                        background: cpu.isActive ? 'rgba(16,185,129,0.12)' : 'var(--code-bg)',
-                        color: cpu.isActive ? '#10b981' : 'var(--text)',
-                    }}
-                >
-                    {cpu.isActive ? 'active' : 'inactive'}
-                </span>
-                <span className="text-xs font-mono" style={{ color: 'var(--text)', opacity: 0.6 }}>
-                    {cpu.modelNumber}
-                </span>
-            </div>
-            <p className="font-semibold mb-0.5 leading-tight" style={{ color: 'var(--text-h)', fontSize: '0.9rem' }}>
-                {cpu.name}
-            </p>
-            <p className="text-xs" style={{ color: 'var(--text)' }}>
-                {cpu.chipManufacturer} {cpu.series && `· ${cpu.series}`}
-                {cpu.cores && ` · ${String(cpu.cores)}C/${String(cpu.threads)}T`}
-            </p>
-            <LastPriceLabel price={lastPrice} />
-        </button>
-    );
-}
-
-function RAMGridCard({ ram, onClick, pricePoints }: { ram: RAMData; onClick: () => void; pricePoints: MiniPricePoint[] }) {
-    const lastPrice = getLastPrice(pricePoints);
-    return (
-        <button
-            onClick={onClick}
-            className="text-left p-4 rounded-lg border transition-all cursor-pointer w-full"
-            style={{ background: 'var(--bg)', borderColor: 'var(--border)', opacity: ram.isActive ? 1 : 0.55 }}
-            onMouseEnter={(e) => {
-                (e.currentTarget as HTMLElement).style.borderColor = 'var(--accent-border)';
-                (e.currentTarget as HTMLElement).style.background = 'var(--accent-bg)';
-            }}
-            onMouseLeave={(e) => {
-                (e.currentTarget as HTMLElement).style.borderColor = 'var(--border)';
-                (e.currentTarget as HTMLElement).style.background = 'var(--bg)';
-            }}
-        >
-            <div className="flex justify-between items-start mb-2">
-                <span
-                    className="text-xs font-mono px-1.5 py-0.5 rounded"
-                    style={{
-                        background: ram.isActive ? 'rgba(16,185,129,0.12)' : 'var(--code-bg)',
-                        color: ram.isActive ? '#10b981' : 'var(--text)',
-                    }}
-                >
-                    {ram.isActive ? 'active' : 'inactive'}
-                </span>
-                <span className="text-xs font-mono" style={{ color: 'var(--text)', opacity: 0.6 }}>
-                    {ram.modelNumber}
-                </span>
-            </div>
-            <p className="font-semibold mb-0.5 leading-tight" style={{ color: 'var(--text-h)', fontSize: '0.9rem' }}>
-                {ram.name}
-            </p>
-            <p className="text-xs" style={{ color: 'var(--text)' }}>
-                {ram.brand} · {ram.standard}
-                {ram.volume && ` · ${String(ram.volume)}GB`}
-                {ram.clockRate && ` · ${String(ram.clockRate)}MHz`}
-            </p>
-            <LastPriceLabel price={lastPrice} />
-        </button>
-    );
-}
-
-function GPUWSGridCard({ gpu, onClick, pricePoints }:
-                       { gpu: GPUWorkstationData; onClick: () => void; pricePoints: MiniPricePoint[] }) {
-    const lastPrice = getLastPrice(pricePoints);
-    return (
-        <button
-            onClick={onClick}
-            className="text-left p-4 rounded-lg border transition-all cursor-pointer w-full"
-            style={{ background: 'var(--bg)', borderColor: 'var(--border)', opacity: gpu.isActive ? 1 : 0.55 }}
-            onMouseEnter={(e) => {
-                (e.currentTarget as HTMLElement).style.borderColor = 'var(--accent-border)';
-                (e.currentTarget as HTMLElement).style.background = 'var(--accent-bg)';
-            }}
-            onMouseLeave={(e) => {
-                (e.currentTarget as HTMLElement).style.borderColor = 'var(--border)';
-                (e.currentTarget as HTMLElement).style.background = 'var(--bg)';
-            }}
-        >
-            <div className="flex justify-between items-start mb-2">
-                <span
-                    className="text-xs font-mono px-1.5 py-0.5 rounded"
-                    style={{
-                        background: gpu.isActive ? 'rgba(16,185,129,0.12)' : 'var(--code-bg)',
-                        color: gpu.isActive ? '#10b981' : 'var(--text)',
-                    }}
-                >
-                    {gpu.isActive ? 'active' : 'inactive'}
-                </span>
-                <span className="text-xs font-mono" style={{ color: 'var(--text)', opacity: 0.6 }}>
-                    {gpu.modelNumber}
-                </span>
-            </div>
-            <p className="font-semibold mb-0.5 leading-tight" style={{ color: 'var(--text-h)', fontSize: '0.9rem' }}>
-                {gpu.name}
-            </p>
-            <p className="text-xs" style={{ color: 'var(--text)' }}>
-                {gpu.chipManufacturer}
-                {gpu.gpuMemory && ` · ${String(gpu.gpuMemory)}GB`}
-                {gpu.cudaCores && ` · ${String(gpu.cudaCores)} CUDA`}
-            </p>
-            <LastPriceLabel price={lastPrice} />
-        </button>
-    );
-}
-
-function SSDGridCard({ ssd, onClick, pricePoints }: { ssd: SSDData; onClick: () => void; pricePoints: MiniPricePoint[] }) {
-    const lastPrice = getLastPrice(pricePoints);
-    return (
-        <button
-            onClick={onClick}
-            className="text-left p-4 rounded-lg border transition-all cursor-pointer w-full"
-            style={{ background: 'var(--bg)', borderColor: 'var(--border)', opacity: ssd.isActive ? 1 : 0.55 }}
-            onMouseEnter={(e) => {
-                (e.currentTarget as HTMLElement).style.borderColor = 'var(--accent-border)';
-                (e.currentTarget as HTMLElement).style.background = 'var(--accent-bg)';
-            }}
-            onMouseLeave={(e) => {
-                (e.currentTarget as HTMLElement).style.borderColor = 'var(--border)';
-                (e.currentTarget as HTMLElement).style.background = 'var(--bg)';
-            }}
-        >
-            <div className="flex justify-between items-start mb-2">
-                <span
-                    className="text-xs font-mono px-1.5 py-0.5 rounded"
-                    style={{
-                        background: ssd.isActive ? 'rgba(16,185,129,0.12)' : 'var(--code-bg)',
-                        color: ssd.isActive ? '#10b981' : 'var(--text)',
-                    }}
-                >
-                    {ssd.isActive ? 'active' : 'inactive'}
-                </span>
-                <span className="text-xs font-mono" style={{ color: 'var(--text)', opacity: 0.6 }}>
-                    {ssd.modelNumber}
-                </span>
-            </div>
-            <p className="font-semibold mb-0.5 leading-tight" style={{ color: 'var(--text-h)', fontSize: '0.9rem' }}>
-                {ssd.name}
-            </p>
-            <p className="text-xs" style={{ color: 'var(--text)' }}>
-                {ssd.brand}
-                {ssd.capacity && ` · ${String(ssd.capacity)}GB`}
-                {ssd.storageInterface && ` · ${ssd.storageInterface}`}
-            </p>
-            <LastPriceLabel price={lastPrice} />
-        </button>
-    );
-}
-
-function HDDGridCard({ hdd, onClick, pricePoints }: { hdd: HDDData; onClick: () => void; pricePoints: MiniPricePoint[] }) {
-    const lastPrice = getLastPrice(pricePoints);
-    return (
-        <button
-            onClick={onClick}
-            className="text-left p-4 rounded-lg border transition-all cursor-pointer w-full"
-            style={{ background: 'var(--bg)', borderColor: 'var(--border)', opacity: hdd.isActive ? 1 : 0.55 }}
-            onMouseEnter={(e) => {
-                (e.currentTarget as HTMLElement).style.borderColor = 'var(--accent-border)';
-                (e.currentTarget as HTMLElement).style.background = 'var(--accent-bg)';
-            }}
-            onMouseLeave={(e) => {
-                (e.currentTarget as HTMLElement).style.borderColor = 'var(--border)';
-                (e.currentTarget as HTMLElement).style.background = 'var(--bg)';
-            }}
-        >
-            <div className="flex justify-between items-start mb-2">
-                <span
-                    className="text-xs font-mono px-1.5 py-0.5 rounded"
-                    style={{
-                        background: hdd.isActive ? 'rgba(16,185,129,0.12)' : 'var(--code-bg)',
-                        color: hdd.isActive ? '#10b981' : 'var(--text)',
-                    }}
-                >
-                    {hdd.isActive ? 'active' : 'inactive'}
-                </span>
-                <span className="text-xs font-mono" style={{ color: 'var(--text)', opacity: 0.6 }}>
-                    {hdd.modelNumber}
-                </span>
-            </div>
-            <p className="font-semibold mb-0.5 leading-tight" style={{ color: 'var(--text-h)', fontSize: '0.9rem' }}>
-                {hdd.name}
-            </p>
-            <p className="text-xs" style={{ color: 'var(--text)' }}>
-                {hdd.brand}
-                {hdd.capacity && ` · ${String(hdd.capacity)}GB`}
-                {hdd.rpm && ` · ${String(hdd.rpm)}RPM`}
-                {hdd.formFactor && ` · ${String(hdd.formFactor)}"`}
-            </p>
-            <LastPriceLabel price={lastPrice} />
-        </button>
-    );
-}
-
-function NVMEGridCard({ nvme, onClick, pricePoints }: { nvme: NVMEData; onClick: () => void; pricePoints: MiniPricePoint[] }) {
-    const lastPrice = getLastPrice(pricePoints);
-    return (
-        <button
-            onClick={onClick}
-            className="text-left p-4 rounded-lg border transition-all cursor-pointer w-full"
-            style={{ background: 'var(--bg)', borderColor: 'var(--border)', opacity: nvme.isActive ? 1 : 0.55 }}
-            onMouseEnter={(e) => {
-                (e.currentTarget as HTMLElement).style.borderColor = 'var(--accent-border)';
-                (e.currentTarget as HTMLElement).style.background = 'var(--accent-bg)';
-            }}
-            onMouseLeave={(e) => {
-                (e.currentTarget as HTMLElement).style.borderColor = 'var(--border)';
-                (e.currentTarget as HTMLElement).style.background = 'var(--bg)';
-            }}
-        >
-            <div className="flex justify-between items-start mb-2">
-                <span
-                    className="text-xs font-mono px-1.5 py-0.5 rounded"
-                    style={{
-                        background: nvme.isActive ? 'rgba(16,185,129,0.12)' : 'var(--code-bg)',
-                        color: nvme.isActive ? '#10b981' : 'var(--text)',
-                    }}
-                >
-                    {nvme.isActive ? 'active' : 'inactive'}
-                </span>
-                <span className="text-xs font-mono" style={{ color: 'var(--text)', opacity: 0.6 }}>
-                    {nvme.modelNumber}
-                </span>
-            </div>
-            <p className="font-semibold mb-0.5 leading-tight" style={{ color: 'var(--text-h)', fontSize: '0.9rem' }}>
-                {nvme.name}
-            </p>
-            <p className="text-xs" style={{ color: 'var(--text)' }}>
-                {nvme.brand}
-                {nvme.capacity && ` · ${String(nvme.capacity)}GB`}
-                {nvme.storageInterface && ` · ${nvme.storageInterface}`}
-                {nvme.includesHeatSink && ' · heatsink'}
-            </p>
-            <LastPriceLabel price={lastPrice} />
-        </button>
-    );
+    )
 }
 
 // --- LIST ROW RENDERS ---
@@ -631,7 +375,7 @@ export const ProductListPage: React.FC<Props> = ({ type }) => {
                 <div className="flex items-center gap-4 mb-4 flex-wrap">
                     <div className="flex items-center gap-2">
                         <label className="text-xs font-mono" style={{ color: 'var(--text)', opacity: 0.7 }}>
-                            chip filter
+                            brand filter
                         </label>
                         <select
                             value={brandFilter ?? ''}
@@ -656,26 +400,90 @@ export const ProductListPage: React.FC<Props> = ({ type }) => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                     {filteredProducts.map((product, i) => {
                         const pts = pricePointMap.get(getModelNumber(product) ?? '') ?? [];
-                        if (type === 'gpu')
-                            return <GPUGridCard key={i} gpu={product as GPUData} onClick={() => {
-                                handleClick(product); }} pricePoints={pts} />;
-                        if (type === 'cpu')
-                            return <CPUGridCard key={i} cpu={product as CPUData} onClick={() => {
-                                handleClick(product); }} pricePoints={pts} />;
-                        if (type === 'ram')
-                            return <RAMGridCard key={i} ram={product as RAMData} onClick={() => {
-                                handleClick(product); }} pricePoints={pts} />;
-                        if (type === 'ssd')
-                            return <SSDGridCard key={i} ssd={product as SSDData} onClick={() => {
-                                handleClick(product); }} pricePoints={pts} />;
-                        if (type === 'hdd')
-                            return <HDDGridCard key={i} hdd={product as HDDData} onClick={() => {
-                                handleClick(product); }} pricePoints={pts} />;
-                        if (type === 'nvme')
-                            return <NVMEGridCard key={i} nvme={product as NVMEData} onClick={() => {
-                                handleClick(product); }} pricePoints={pts} />;
-                        return <GPUWSGridCard key={i} gpu={product as GPUWorkstationData} onClick={() => {
-                            handleClick(product); }} pricePoints={pts} />;
+                        const onClick = () => { handleClick(product); };
+
+                        if (type === 'gpu') {
+                            const gpu = product as GPUData;
+                            return (
+                                <GenericGridCard key={i} product={gpu} onClick={onClick} pricePoints={pts}>
+                                    <p className="text-xs" style={{ color: 'var(--text)' }}>
+                                        {gpu.chip} &middot; {gpu.chipManufacturer}
+                                    </p>
+                                </GenericGridCard>
+                            );
+                        }
+                        if (type === 'cpu') {
+                            const cpu = product as CPUData;
+                            return (
+                                <GenericGridCard key={i} product={cpu} onClick={onClick} pricePoints={pts}>
+                                    <p className="text-xs" style={{ color: 'var(--text)' }}>
+                                        {cpu.chipManufacturer} {cpu.series && `· ${cpu.series}`}
+                                        {cpu.cores && ` · ${String(cpu.cores)}C/${String(cpu.threads)}T`}
+                                    </p>
+                                </GenericGridCard>
+                            );
+                        }
+                        if (type === 'ram') {
+                            const ram = product as RAMData;
+                            return (
+                                <GenericGridCard key={i} product={ram} onClick={onClick} pricePoints={pts}>
+                                    <p className="text-xs" style={{ color: 'var(--text)' }}>
+                                        {ram.brand} · {ram.standard}
+                                        {ram.volume && ` · ${String(ram.volume)}GB`}
+                                        {ram.clockRate && ` · ${String(ram.clockRate)}MHz`}
+                                    </p>
+                                </GenericGridCard>
+                            );
+                        }
+                        if (type === 'ssd') {
+                            const ssd = product as SSDData;
+                            return (
+                                <GenericGridCard key={i} product={ssd} onClick={onClick} pricePoints={pts}>
+                                    <p className="text-xs" style={{ color: 'var(--text)' }}>
+                                        {ssd.brand}
+                                        {ssd.capacity && ` · ${String(ssd.capacity)}GB`}
+                                        {ssd.storageInterface && ` · ${ssd.storageInterface}`}
+                                    </p>
+                                </GenericGridCard>
+                            );
+                        }
+                        if (type === 'hdd') {
+                            const hdd = product as HDDData;
+                            return (
+                                <GenericGridCard key={i} product={hdd} onClick={onClick} pricePoints={pts}>
+                                    <p className="text-xs" style={{ color: 'var(--text)' }}>
+                                        {hdd.brand}
+                                        {hdd.capacity && ` · ${String(hdd.capacity)}GB`}
+                                        {hdd.rpm && ` · ${String(hdd.rpm)}RPM`}
+                                        {hdd.formFactor && ` · ${String(hdd.formFactor)}"`}
+                                    </p>
+                                </GenericGridCard>
+                            );
+                        }
+                        if (type === 'nvme') {
+                            const nvme = product as NVMEData;
+                            return (
+                                <GenericGridCard key={i} product={nvme} onClick={onClick} pricePoints={pts}>
+                                    <p className="text-xs" style={{ color: 'var(--text)' }}>
+                                        {nvme.brand}
+                                        {nvme.capacity && ` · ${String(nvme.capacity)}GB`}
+                                        {nvme.storageInterface && ` · ${nvme.storageInterface}`}
+                                        {nvme.includesHeatSink && ' · heatsink'}
+                                    </p>
+                                </GenericGridCard>
+                            );
+                        }
+
+                        const gpuWS = product as GPUWorkstationData;
+                        return (
+                            <GenericGridCard key={i} product={gpuWS} onClick={onClick} pricePoints={pts}>
+                                <p className="text-xs" style={{ color: 'var(--text)' }}>
+                                    {gpuWS.chipManufacturer}
+                                    {gpuWS.gpuMemory && ` · ${String(gpuWS.gpuMemory)}GB`}
+                                    {gpuWS.cudaCores && ` · ${String(gpuWS.cudaCores)} CUDA`}
+                                </p>
+                            </GenericGridCard>
+                        );
                     })}
                 </div>
             ) : (
