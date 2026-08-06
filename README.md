@@ -6,6 +6,9 @@ A multi-page interface for tracking the price history of computer hardware compo
 
 ---
 
+https://github.com/user-attachments/assets/deb4d840-4868-4c89-97d0-5ed4e59da9d8
+
+
 ## Overview
 
 This application allows users to browse time-series pricing data on computer hardware across several categories — Consumer GPUs, CPUs, RAM, Workstation GPUs, SSDs, HDDs, and NVMe drives — and view interactive charts for each product, broken down by vendor. The goal is to give users a clear picture of how prices move over time across the Australian market, with the intention to extend coverage to US vendors in the future. The application was created in response to the considerable pricing volatility within the PC market.
