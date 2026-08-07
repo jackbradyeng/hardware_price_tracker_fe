@@ -1,4 +1,4 @@
-import type { GPUData } from '@/types/product_types/GPUType.ts';
+import type { GPUData } from '@/types/productTypes/GPUType.ts';
 
 export const getGPUs = async (): Promise<GPUData[]> => {
 

@@ -1,5 +1,5 @@
-import type { AbstractPricePointType } from '@/types/price_point_types/AbstractPricePointType.ts';
-import type { RAMDataAndPricePointType } from '@/types/hybrid_types/RAMDataAndPricePointType.ts';
+import type { AbstractPricePointType } from '@/types/pricePointTypes/AbstractPricePointType.ts';
+import type { RAMDataAndPricePointType } from '@/types/hybridProductPricePointTypes/RAMDataAndPricePointType.ts';
 import type { PageResponse } from '@/types/PageResponse.ts';
 
 export const getRAMPricePoints = async (): Promise<AbstractPricePointType[]> => {

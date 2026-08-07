@@ -1,4 +1,4 @@
-import type { CPUData } from '@/types/product_types/CPUType.ts';
+import type { CPUData } from '@/types/productTypes/CPUType.ts';
 
 export const getCPUs = async (): Promise<CPUData[]> => {
 

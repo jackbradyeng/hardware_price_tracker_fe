@@ -1,5 +1,5 @@
-import type { CPUData } from '@/types/product_types/CPUType.ts';
-import type { AbstractPricePointType } from '@/types/price_point_types/AbstractPricePointType.ts';
+import type { CPUData } from '@/types/productTypes/CPUType.ts';
+import type { AbstractPricePointType } from '@/types/pricePointTypes/AbstractPricePointType.ts';
 
 export interface CPUDataAndPricePointType {
     cpuDTO: CPUData;

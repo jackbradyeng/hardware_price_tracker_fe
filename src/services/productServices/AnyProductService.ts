@@ -1,4 +1,4 @@
-import type {AnyProduct} from "@/types/product_types/AnyProductType.ts";
+import type {AnyProduct} from "@/types/productTypes/AnyProductType.ts";
 
 export function getModelNumber(product: AnyProduct): string | null {
     return product.modelNumber;

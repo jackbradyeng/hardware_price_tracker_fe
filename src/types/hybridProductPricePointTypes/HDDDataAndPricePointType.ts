@@ -1,5 +1,5 @@
-import type { HDDData } from '@/types/product_types/HDDType.ts';
-import type { AbstractPricePointType } from '@/types/price_point_types/AbstractPricePointType.ts';
+import type { HDDData } from '@/types/productTypes/HDDType.ts';
+import type { AbstractPricePointType } from '@/types/pricePointTypes/AbstractPricePointType.ts';
 
 export interface HDDDataAndPricePointType {
     hddDTO: HDDData;

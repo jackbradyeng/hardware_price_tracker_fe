@@ -1,5 +1,5 @@
-import type { AbstractPricePointType } from '@/types/price_point_types/AbstractPricePointType.ts';
-import type { GPUWorkstationDataAndPricePointType } from '@/types/hybrid_types/GPUWorkstationDataAndPricePointType.ts';
+import type { AbstractPricePointType } from '@/types/pricePointTypes/AbstractPricePointType.ts';
+import type { GPUWorkstationDataAndPricePointType } from '@/types/hybridProductPricePointTypes/GPUWorkstationDataAndPricePointType.ts';
 import type { PageResponse } from '@/types/PageResponse.ts';
 
 export const getGPUWorkstationPricePoints = async (): Promise<AbstractPricePointType[]> => {

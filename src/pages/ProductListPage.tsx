@@ -1,30 +1,30 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getModelNumber } from '@/services/product_services/AnyProductService.ts'
-import { getIsActive } from "@/services/product_services/AnyProductService.ts";
-import { getGPUs } from '@/services/product_services/GPUService';
-import { getCPUs } from '@/services/product_services/CPUService';
-import { getRAMs } from '@/services/product_services/RAMService';
-import { getGPUWorkstations } from '@/services/product_services/GPUWorkstationService';
-import { getSSDs } from '@/services/product_services/SSDService';
-import { getHDDs } from '@/services/product_services/HDDService';
-import { getNVMEs } from '@/services/product_services/NVMEService';
-import { getGPUPricePoints } from '@/services/price_point_services/GPUPricePointService';
-import { getCPUPricePoints } from '@/services/price_point_services/CPUPricePointService';
-import { getRAMPricePoints } from '@/services/price_point_services/RAMPricePointService';
-import { getGPUWorkstationPricePoints } from '@/services/price_point_services/GPUWorkstationPricePointService';
-import { getSSDPricePoints } from '@/services/price_point_services/SSDPricePointService';
-import { getHDDPricePoints } from '@/services/price_point_services/HDDPricePointService';
-import { getNVMEPricePoints } from '@/services/price_point_services/NVMEPricePointService';
+import { getModelNumber } from '@/services/productServices/AnyProductService.ts'
+import { getIsActive } from "@/services/productServices/AnyProductService.ts";
+import { getGPUs } from '@/services/productServices/GPUService';
+import { getCPUs } from '@/services/productServices/CPUService';
+import { getRAMs } from '@/services/productServices/RAMService';
+import { getGPUWorkstations } from '@/services/productServices/GPUWorkstationService';
+import { getSSDs } from '@/services/productServices/SSDService';
+import { getHDDs } from '@/services/productServices/HDDService';
+import { getNVMEs } from '@/services/productServices/NVMEService';
+import { getGPUPricePoints } from '@/services/pricePointServices/GPUPricePointService';
+import { getCPUPricePoints } from '@/services/pricePointServices/CPUPricePointService';
+import { getRAMPricePoints } from '@/services/pricePointServices/RAMPricePointService';
+import { getGPUWorkstationPricePoints } from '@/services/pricePointServices/GPUWorkstationPricePointService';
+import { getSSDPricePoints } from '@/services/pricePointServices/SSDPricePointService';
+import { getHDDPricePoints } from '@/services/pricePointServices/HDDPricePointService';
+import { getNVMEPricePoints } from '@/services/pricePointServices/NVMEPricePointService';
 import {TYPE_CONFIG} from "@/configuration/TypeConfiguration.ts";
-import type { AnyProduct} from "@/types/product_types/AnyProductType.ts";
-import type { GPUData } from '@/types/product_types/GPUType';
-import type { CPUData } from '@/types/product_types/CPUType';
-import type { RAMData } from '@/types/product_types/RAMType';
-import type { GPUWorkstationData } from '@/types/product_types/GPUWorkstationType';
-import type { SSDData } from '@/types/product_types/SSDType';
-import type { HDDData } from '@/types/product_types/HDDType';
-import type { NVMEData } from '@/types/product_types/NVMEType';
+import type { AnyProduct} from "@/types/productTypes/AnyProductType.ts";
+import type { GPUData } from '@/types/productTypes/GPUType';
+import type { CPUData } from '@/types/productTypes/CPUType';
+import type { RAMData } from '@/types/productTypes/RAMType';
+import type { GPUWorkstationData } from '@/types/productTypes/GPUWorkstationType';
+import type { SSDData } from '@/types/productTypes/SSDType';
+import type { HDDData } from '@/types/productTypes/HDDType';
+import type { NVMEData } from '@/types/productTypes/NVMEType';
 
 export type ProductType = 'gpu' | 'cpu' | 'ram' | 'workstation_gpu' | 'ssd' | 'hdd' | 'nvme';
 

@@ -1,4 +1,4 @@
-import type { GPUWorkstationData } from '@/types//product_types/GPUWorkstationType';
+import type { GPUWorkstationData } from '@/types/productTypes/GPUWorkstationType';
 
 export const getGPUWorkstations = async (): Promise<GPUWorkstationData[]> => {
 

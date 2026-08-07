@@ -1,4 +1,4 @@
-import type { RAMData } from '@/types/product_types/RAMType.ts';
+import type { RAMData } from '@/types/productTypes/RAMType.ts';
 
 export const getRAMs = async (): Promise<RAMData[]> => {
 

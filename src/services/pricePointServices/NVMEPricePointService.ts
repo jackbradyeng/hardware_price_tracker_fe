@@ -1,5 +1,5 @@
-import type { AbstractPricePointType } from '@/types/price_point_types/AbstractPricePointType.ts';
-import type { NVMEDataAndPricePointType } from '@/types/hybrid_types/NVMEDataAndPricePointType.ts';
+import type { AbstractPricePointType } from '@/types/pricePointTypes/AbstractPricePointType.ts';
+import type { NVMEDataAndPricePointType } from '@/types/hybridProductPricePointTypes/NVMEDataAndPricePointType.ts';
 import type { PageResponse } from '@/types/PageResponse.ts';
 
 export const getNVMEPricePoints = async (): Promise<AbstractPricePointType[]> => {

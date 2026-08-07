@@ -1,4 +1,4 @@
-import type { SSDData } from '@/types/product_types/SSDType.ts';
+import type { SSDData } from '@/types/productTypes/SSDType.ts';
 
 export const getSSDs = async (): Promise<SSDData[]> => {
 

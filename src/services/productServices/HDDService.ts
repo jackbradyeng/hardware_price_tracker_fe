@@ -1,4 +1,4 @@
-import type { HDDData } from '@/types/product_types/HDDType.ts';
+import type { HDDData } from '@/types/productTypes/HDDType.ts';
 
 export const getHDDs = async (): Promise<HDDData[]> => {
 

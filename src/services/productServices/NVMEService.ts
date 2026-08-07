@@ -1,4 +1,4 @@
-import type { NVMEData } from '@/types/product_types/NVMEType.ts';
+import type { NVMEData } from '@/types/productTypes/NVMEType.ts';
 
 export const getNVMEs = async (): Promise<NVMEData[]> => {
 

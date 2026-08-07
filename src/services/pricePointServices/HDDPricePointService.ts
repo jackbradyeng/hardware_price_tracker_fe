@@ -1,5 +1,5 @@
-import type { AbstractPricePointType } from '@/types/price_point_types/AbstractPricePointType.ts';
-import type { HDDDataAndPricePointType } from '@/types/hybrid_types/HDDDataAndPricePointType.ts';
+import type { AbstractPricePointType } from '@/types/pricePointTypes/AbstractPricePointType.ts';
+import type { HDDDataAndPricePointType } from '@/types/hybridProductPricePointTypes/HDDDataAndPricePointType.ts';
 import type { PageResponse } from '@/types/PageResponse.ts';
 
 export const getHDDPricePoints = async (): Promise<AbstractPricePointType[]> => {
