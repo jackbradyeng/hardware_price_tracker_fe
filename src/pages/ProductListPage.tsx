@@ -25,20 +25,14 @@ import type { GPUWorkstationData } from '@/types/productTypes/GPUWorkstationType
 import type { SSDData } from '@/types/productTypes/SSDType';
 import type { HDDData } from '@/types/productTypes/HDDType';
 import type { NVMEData } from '@/types/productTypes/NVMEType';
+import type {AbstractPricePointType} from "@/types/pricePointTypes/AbstractPricePointType.ts";
 
 export type ProductType = 'gpu' | 'cpu' | 'ram' | 'workstation_gpu' | 'ssd' | 'hdd' | 'nvme';
 
 type ViewMode = 'grid' | 'list';
 
-interface MiniPricePoint {
-    modelNumber: string | null;
-    vendor: string | null;
-    price: number | null;
-    scrapedAt: string | null;
-}
-
-function getLastPrice(pricePoints: MiniPricePoint[]): number | null {
-    let latest: MiniPricePoint | null = null;
+function getLastPrice(pricePoints: AbstractPricePointType[]): number | null {
+    let latest: AbstractPricePointType | null = null;
     for (const pp of pricePoints) {
         if (pp.price === null || !pp.scrapedAt) continue;
         if (!latest?.scrapedAt || new Date(pp.scrapedAt).getTime() > new Date(latest.scrapedAt).getTime()) {
@@ -61,9 +55,11 @@ function LastPriceLabel({ price }: { price: number | null }) {
 function GenericGridCard({ product, onClick, pricePoints, children }: {
     product: AnyProduct;
     onClick: () => void;
-    pricePoints: MiniPricePoint[];
+    pricePoints: AbstractPricePointType[];
     children?: React.ReactNode;
-}) {
+})
+
+{
     const lastPrice = getLastPrice(pricePoints);
     return (
         <button
@@ -158,7 +154,7 @@ interface Props {
 export const ProductListPage: React.FC<Props> = ({ type }) => {
     const navigate = useNavigate();
     const [products, setProducts] = useState<AnyProduct[]>([]);
-    const [pricePointMap, setPricePointMap] = useState<Map<string, MiniPricePoint[]>>(new Map());
+    const [pricePointMap, setPricePointMap] = useState<Map<string, AbstractPricePointType[]>>(new Map());
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [viewMode, setViewMode] = useState<ViewMode>('grid');
@@ -175,7 +171,7 @@ export const ProductListPage: React.FC<Props> = ({ type }) => {
             setBrandFilter(null);
             try {
                 let data: AnyProduct[];
-                let pricePoints: MiniPricePoint[];
+                let pricePoints: AbstractPricePointType[];
                 if (type === 'gpu') {
                     [data, pricePoints] = await Promise.all([getGPUs(), getGPUPricePoints()]);
                 } else if (type === 'cpu') {
@@ -194,7 +190,7 @@ export const ProductListPage: React.FC<Props> = ({ type }) => {
 
                 setProducts(data.sort((a, b) => Number(b.isActive) - Number(a.isActive)));
 
-                const map = new Map<string, MiniPricePoint[]>();
+                const map = new Map<string, AbstractPricePointType[]>();
                 for (const pp of pricePoints) {
                     if (!pp.modelNumber) continue;
                     if (!map.has(pp.modelNumber)) map.set(pp.modelNumber, []);
