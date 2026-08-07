@@ -14,6 +14,7 @@ import { getGPUWorkstationPricePoints } from '@/services/price_point_services/GP
 import { getSSDPricePoints } from '@/services/price_point_services/SSDPricePointService';
 import { getHDDPricePoints } from '@/services/price_point_services/HDDPricePointService';
 import { getNVMEPricePoints } from '@/services/price_point_services/NVMEPricePointService';
+import type { AnyProduct} from "@/types/product_types/AnyProductType.ts";
 import type { GPUData } from '@/types/product_types/GPUType';
 import type { CPUData } from '@/types/product_types/CPUType';
 import type { RAMData } from '@/types/product_types/RAMType';
@@ -23,8 +24,6 @@ import type { HDDData } from '@/types/product_types/HDDType';
 import type { NVMEData } from '@/types/product_types/NVMEType';
 
 export type ProductType = 'gpu' | 'cpu' | 'ram' | 'workstation_gpu' | 'ssd' | 'hdd' | 'nvme';
-
-type AnyProduct = GPUData | CPUData | RAMData | GPUWorkstationData | SSDData | HDDData | NVMEData;
 
 type ViewMode = 'grid' | 'list';
 
@@ -74,7 +73,6 @@ function LastPriceLabel({ price }: { price: number | null }) {
 }
 
 // --- CARD RENDERS ---
-
 function GenericGridCard({ product, onClick, pricePoints, children }: {
     product: AnyProduct;
     onClick: () => void;
@@ -121,7 +119,6 @@ function GenericGridCard({ product, onClick, pricePoints, children }: {
 }
 
 // --- LIST ROW RENDERS ---
-
 function ListRow({
     product,
     primary,
@@ -169,7 +166,6 @@ function ListRow({
 }
 
 // --- MAIN COMPONENT ---
-
 interface Props {
     type: ProductType;
 }
