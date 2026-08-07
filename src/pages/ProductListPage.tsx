@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { getModelNumber } from '@/services/product_services/AnyProductService.ts'
+import { getIsActive } from "@/services/product_services/AnyProductService.ts";
 import { getGPUs } from '@/services/product_services/GPUService';
 import { getCPUs } from '@/services/product_services/CPUService';
 import { getRAMs } from '@/services/product_services/RAMService';
@@ -33,14 +35,6 @@ interface MiniPricePoint {
     vendor: string | null;
     price: number | null;
     scrapedAt: string | null;
-}
-
-function getModelNumber(product: AnyProduct): string | null {
-    return product.modelNumber;
-}
-
-function getIsActive(product: AnyProduct): boolean {
-    return product.isActive;
 }
 
 function getLastPrice(pricePoints: MiniPricePoint[]): number | null {
