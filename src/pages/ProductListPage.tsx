@@ -29,6 +29,7 @@ import type {AbstractPricePointType} from "@/types/pricePointTypes/AbstractPrice
 
 export type ProductType = 'gpu' | 'cpu' | 'ram' | 'workstation_gpu' | 'ssd' | 'hdd' | 'nvme';
 
+// LOCAL TYPES
 type ViewMode = 'grid' | 'list';
 
 function getLastPrice(pricePoints: AbstractPricePointType[]): number | null {
@@ -158,6 +159,7 @@ export const ProductListPage: React.FC<Props> = ({ type }) => {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [viewMode, setViewMode] = useState<ViewMode>('grid');
+    const [priceSort, setPriceSort] = useState<string>('default');
     const [chipFilter, setChipFilter] = useState<string | null>(null);
     const [brandFilter, setBrandFilter] = useState<string | null>(null);
 
@@ -167,6 +169,7 @@ export const ProductListPage: React.FC<Props> = ({ type }) => {
         const load = async () => {
             setIsLoading(true);
             setError(null);
+            setPriceSort('default');
             setChipFilter(null);
             setBrandFilter(null);
             try {
@@ -234,9 +237,25 @@ export const ProductListPage: React.FC<Props> = ({ type }) => {
             })
         : products
 
+    // --- PRODUCT SORT ---
+    const sortedProducts = priceSort === 'default'
+        ? filteredProducts
+        : [...filteredProducts].sort((a, b) => {
+            const priceA = getLastPrice(pricePointMap.get(getModelNumber(a) ?? '') ?? []);
+            const priceB = getLastPrice(pricePointMap.get(getModelNumber(b) ?? '') ?? []);
+            if (priceA === null) return priceB === null ? 0 : 1;
+            if (priceB === null) return -1;
+            return priceSort === 'asc' ? priceA - priceB : priceB - priceA;
+        });
+
     const handleClick = (product: AnyProduct) => {
         const model = getModelNumber(product);
         if (model) void navigate(`${config.detailBase}/${encodeURIComponent(model)}`);
+    };
+
+    // --- HANDLE DROP DOWN MENU CHANGE ---
+    const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        setPriceSort(e.target.value);
     };
 
     // --- LOADING RENDER ---
@@ -295,33 +314,82 @@ export const ProductListPage: React.FC<Props> = ({ type }) => {
                 </div>
             </div>
 
-            {type === 'gpu' && (gpuChipOptions.length > 0 || gpuBrandOptions.length > 0) && (
+            <div className="flex items-center justify-start gap-4 mb-6">
+                <div className="flex items-center gap-2">
+                    <label className="text-xs font-mono" style={{ color: 'var(--text)', opacity: 0.7}}>
+                        price sort
+                    </label>
+                    <select
+                        value={priceSort}
+                        onChange={handleChange}
+                        className="text-xs font-mono px-2 py-1 rounded border"
+                        style={{
+                            background: 'var(--bg)',
+                            color: 'var(--text)',
+                            borderColor: priceSort ? 'var(--accent-border)' : 'var(--border)',
+                        }}
+                    >
+                        <option value="default">default</option>
+                        <option value="asc">asc</option>
+                        <option value="desc">desc</option>
+                    </select>
+                </div>
 
-                // GPU CHIP & BRAND FILTER BUTTONS
-                <div className="flex items-center gap-4 mb-4 flex-wrap">
-                    {gpuChipOptions.length > 0 && (
-                        <div className="flex items-center gap-2">
-                            <label className="text-xs font-mono" style={{ color: 'var(--text)', opacity: 0.7 }}>
-                                chip filter
-                            </label>
-                            <select
-                                value={chipFilter ?? ''}
-                                onChange={(e) => { setChipFilter(e.target.value || null); }}
-                                className="text-xs font-mono px-2 py-1 rounded border"
-                                style={{
-                                    background: 'var(--bg)',
-                                    color: 'var(--text)',
-                                    borderColor: chipFilter ? 'var(--accent-border)' : 'var(--border)',
-                                }}
-                            >
-                                <option value="">all</option>
-                                {gpuChipOptions.map(chip => (
-                                    <option key={chip} value={chip}>{chip}</option>
-                                ))}
-                            </select>
-                        </div>
-                    )}
-                    {gpuBrandOptions.length > 0 && (
+                {type === 'gpu' && (gpuChipOptions.length > 0 || gpuBrandOptions.length > 0) && (
+
+                    // GPU CHIP & BRAND FILTER BUTTONS
+                    <div className="flex items-center gap-4">
+                        {gpuChipOptions.length > 0 && (
+                            <div className="flex items-center gap-2">
+                                <label className="text-xs font-mono" style={{ color: 'var(--text)', opacity: 0.7 }}>
+                                    chip filter
+                                </label>
+                                <select
+                                    value={chipFilter ?? ''}
+                                    onChange={(e) => { setChipFilter(e.target.value || null); }}
+                                    className="text-xs font-mono px-2 py-1 rounded border"
+                                    style={{
+                                        background: 'var(--bg)',
+                                        color: 'var(--text)',
+                                        borderColor: chipFilter ? 'var(--accent-border)' : 'var(--border)',
+                                    }}
+                                >
+                                    <option value="">all</option>
+                                    {gpuChipOptions.map(chip => (
+                                        <option key={chip} value={chip}>{chip}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        )}
+                        {gpuBrandOptions.length > 0 && (
+                            <div className="flex items-center gap-2">
+                                <label className="text-xs font-mono" style={{ color: 'var(--text)', opacity: 0.7 }}>
+                                    brand filter
+                                </label>
+                                <select
+                                    value={brandFilter ?? ''}
+                                    onChange={(e) => { setBrandFilter(e.target.value || null); }}
+                                    className="text-xs font-mono px-2 py-1 rounded border"
+                                    style={{
+                                        background: 'var(--bg)',
+                                        color: 'var(--text)',
+                                        borderColor: brandFilter ? 'var(--accent-border)' : 'var(--border)',
+                                    }}
+                                >
+                                    <option value="">all</option>
+                                    {gpuBrandOptions.map(brand => (
+                                        <option key={brand} value={brand}>{brand}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                {type === 'cpu' && (cpuBrandOptions.length > 0) && (
+
+                    // CPU BRAND FILTER BUTTON
+                    <div className="flex items-center gap-4 mb-4 flex-wrap">
                         <div className="flex items-center gap-2">
                             <label className="text-xs font-mono" style={{ color: 'var(--text)', opacity: 0.7 }}>
                                 brand filter
@@ -337,45 +405,18 @@ export const ProductListPage: React.FC<Props> = ({ type }) => {
                                 }}
                             >
                                 <option value="">all</option>
-                                {gpuBrandOptions.map(brand => (
+                                {cpuBrandOptions.map(brand => (
                                     <option key={brand} value={brand}>{brand}</option>
                                 ))}
                             </select>
                         </div>
-                    )}
-                </div>
-            )}
-
-            {type === 'cpu' && (cpuBrandOptions.length > 0) && (
-
-                // CPU BRAND FILTER BUTTON
-                <div className="flex items-center gap-4 mb-4 flex-wrap">
-                    <div className="flex items-center gap-2">
-                        <label className="text-xs font-mono" style={{ color: 'var(--text)', opacity: 0.7 }}>
-                            brand filter
-                        </label>
-                        <select
-                            value={brandFilter ?? ''}
-                            onChange={(e) => { setBrandFilter(e.target.value || null); }}
-                            className="text-xs font-mono px-2 py-1 rounded border"
-                            style={{
-                                background: 'var(--bg)',
-                                color: 'var(--text)',
-                                borderColor: brandFilter ? 'var(--accent-border)' : 'var(--border)',
-                            }}
-                        >
-                            <option value="">all</option>
-                            {cpuBrandOptions.map(brand => (
-                                <option key={brand} value={brand}>{brand}</option>
-                            ))}
-                        </select>
                     </div>
-                </div>
-            )}
+                )}
+            </div>
 
             {viewMode === 'grid' ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                    {filteredProducts.map((product, i) => {
+                    {sortedProducts.map((product, i) => {
                         const pts = pricePointMap.get(getModelNumber(product) ?? '') ?? [];
                         const onClick = () => { handleClick(product); };
 
@@ -468,9 +509,9 @@ export const ProductListPage: React.FC<Props> = ({ type }) => {
                     className="rounded-lg border overflow-hidden"
                     style={{ borderColor: 'var(--border)' }}
                 >
-                    {filteredProducts.map((product, i) => {
-                        let primary = '';
-                        let secondary = '';
+                    {sortedProducts.map((product, i) => {
+                        let primary;
+                        let secondary;
 
                         if (type === 'gpu') {
                             const g = product as GPUData;
@@ -479,32 +520,39 @@ export const ProductListPage: React.FC<Props> = ({ type }) => {
                         } else if (type === 'cpu') {
                             const c = product as CPUData;
                             primary = c.name ?? '';
-                            secondary = [c.chipManufacturer, c.series, c.cores ? `${String(c.cores)}C/${String(c.threads)}T` : null]
+                            secondary = [c.chipManufacturer, c.series, c.cores ?
+                                `${String(c.cores)}C/${String(c.threads)}T` : null]
                                 .filter(Boolean).join(' · ');
                         } else if (type === 'ram') {
                             const r = product as RAMData;
                             primary = r.name ?? '';
-                            secondary = [r.brand, r.standard, r.volume ? `${String(r.volume)}GB` : null, r.clockRate ? `${String(r.clockRate)}MHz` : null]
+                            secondary = [r.brand, r.standard, r.volume ? `${String(r.volume)}GB` : null,
+                                r.clockRate ? `${String(r.clockRate)}MHz` : null]
                                 .filter(Boolean).join(' · ');
                         } else if (type === 'ssd') {
                             const s = product as SSDData;
                             primary = s.name ?? '';
-                            secondary = [s.brand, s.capacity ? `${String(s.capacity)}GB` : null, s.storageInterface]
+                            secondary = [s.brand, s.capacity ? `${String(s.capacity)}GB` : null,
+                                s.storageInterface]
                                 .filter(Boolean).join(' · ');
                         } else if (type === 'hdd') {
                             const h = product as HDDData;
                             primary = h.name ?? '';
-                            secondary = [h.brand, h.capacity ? `${String(h.capacity)}GB` : null, h.rpm ? `${String(h.rpm)}RPM` : null, h.formFactor ? `${String(h.formFactor)}"` : null]
+                            secondary = [h.brand, h.capacity ? `${String(h.capacity)}GB` : null,
+                                h.rpm ? `${String(h.rpm)}RPM` : null,
+                                h.formFactor ? `${String(h.formFactor)}"` : null]
                                 .filter(Boolean).join(' · ');
                         } else if (type === 'nvme') {
                             const n = product as NVMEData;
                             primary = n.name ?? '';
-                            secondary = [n.brand, n.capacity ? `${String(n.capacity)}GB` : null, n.storageInterface]
+                            secondary = [n.brand, n.capacity ? `${String(n.capacity)}GB` : null,
+                                n.storageInterface]
                                 .filter(Boolean).join(' · ');
                         } else {
                             const g = product as GPUWorkstationData;
                             primary = g.name ?? '';
-                            secondary = [g.chipManufacturer, g.gpuMemory ? `${String(g.gpuMemory)}GB` : null, g.cudaCores ? `${String(g.cudaCores)} CUDA` : null]
+                            secondary = [g.chipManufacturer, g.gpuMemory ? `${String(g.gpuMemory)}GB` : null,
+                                g.cudaCores ? `${String(g.cudaCores)} CUDA` : null]
                                 .filter(Boolean).join(' · ');
                         }
 
