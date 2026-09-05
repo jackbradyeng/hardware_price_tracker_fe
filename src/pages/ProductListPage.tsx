@@ -223,6 +223,11 @@ export const ProductListPage: React.FC<Props> = ({ type }) => {
         ? [...new Set(products.map(p => (p as CPUData).chipManufacturer).filter(Boolean))] as string[]
         : [];
 
+    // --- RAM FILTERS ---
+    const ramBrandOptions = type === 'ram'
+        ? [...new Set(products.map(p => (p as RAMData).brand).filter(Boolean))] as string[]
+        : [];
+
     // --- PRODUCT FILTER ---
     const filteredProducts
         = type === 'gpu'
@@ -234,6 +239,11 @@ export const ProductListPage: React.FC<Props> = ({ type }) => {
             ? products.filter(p => {
                 const cpu = p as CPUData;
                 return (!brandFilter || cpu.chipManufacturer === brandFilter);
+            })
+        : type === 'ram'
+            ? products.filter(p => {
+                const ram = p as RAMData;
+                return (!brandFilter || ram.brand === brandFilter);
             })
         : products
 
@@ -406,6 +416,33 @@ export const ProductListPage: React.FC<Props> = ({ type }) => {
                             >
                                 <option value="">all</option>
                                 {cpuBrandOptions.map(brand => (
+                                    <option key={brand} value={brand}>{brand}</option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+                )}
+
+                {type === 'ram' && (ramBrandOptions.length > 0) && (
+
+                    // RAM BRAND FILTER BUTTON
+                    <div className="flex items-center gap-4 mb-4 flex-wrap">
+                        <div className="flex items-center gap-2">
+                            <label className="text-xs font-mono" style={{ color: 'var(--text)', opacity: 0.7 }}>
+                                brand filter
+                            </label>
+                            <select
+                                value={brandFilter ?? ''}
+                                onChange={(e) => { setBrandFilter(e.target.value || null); }}
+                                className="text-xs font-mono px-2 py-1 rounded border"
+                                style={{
+                                    background: 'var(--bg)',
+                                    color: 'var(--text)',
+                                    borderColor: brandFilter ? 'var(--accent-border)' : 'var(--border)',
+                                }}
+                            >
+                                <option value="">all</option>
+                                {ramBrandOptions.map(brand => (
                                     <option key={brand} value={brand}>{brand}</option>
                                 ))}
                             </select>
